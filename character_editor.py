@@ -97,51 +97,58 @@ def change_characteristics(symbol, parameter):
             img4 = font1.render(f'{img_tokens[0] + 1}', True, font_color)
 
     else:
-        tokens += 1
         if parameter == 'strength':
             img_tokens = cur.execute('''
                 SELECT strength FROM characteristics
                 WHERE id = 1
             ''').fetchone()
-            cur.execute('''
-                UPDATE characteristics
-                SET strength = ?
-                WHERE id = 1
-            ''', (str(img_tokens[0] - 1)),)
-            img1 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
+            if img_tokens[0] > 0:
+                cur.execute('''
+                    UPDATE characteristics
+                    SET strength = ?
+                    WHERE id = 1
+                ''', (str(img_tokens[0] - 1)),)
+                tokens += 1
+                img1 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
         elif parameter == 'endurance':
             img_tokens = cur.execute('''
                 SELECT endurance FROM characteristics
                 WHERE id = 1
             ''').fetchone()
-            cur.execute('''
-                UPDATE characteristics
-                SET endurance = ?
-                WHERE id = 1
-            ''', (str(img_tokens[0] - 1)),)
-            img2 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
+            if img_tokens[0] > 0:
+                cur.execute('''
+                    UPDATE characteristics
+                    SET endurance = ?
+                    WHERE id = 1
+                ''', (str(img_tokens[0] - 1)),)
+                tokens += 1
+                img2 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
         elif parameter == 'iq':
             img_tokens = cur.execute('''
                 SELECT iq FROM characteristics
                 WHERE id = 1
             ''').fetchone()
-            cur.execute('''
-                UPDATE characteristics
-                SET iq = ?
-                WHERE id = 1
-            ''', (str(img_tokens[0] - 1)),)
-            img3 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
+            if img_tokens[0] > 0:
+                cur.execute('''
+                    UPDATE characteristics
+                    SET iq = ?
+                    WHERE id = 1
+                ''', (str(img_tokens[0] - 1)),)
+                tokens += 1
+                img3 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
         else:
             img_tokens = cur.execute('''
                 SELECT body_type FROM characteristics
                 WHERE id = 1
             ''').fetchone()
-            cur.execute('''
-                UPDATE characteristics
-                SET body_type = ?
-                WHERE id = 1
-            ''', (str(img_tokens[0] - 1)),)
-            img4 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
+            if img_tokens[0] > 0:
+                cur.execute('''
+                    UPDATE characteristics
+                    SET body_type = ?
+                    WHERE id = 1
+                ''', (str(img_tokens[0] - 1)),)
+                tokens += 1
+                img4 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
 
     connect.commit()
     cur.close()
