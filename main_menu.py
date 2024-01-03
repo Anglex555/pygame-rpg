@@ -1,14 +1,20 @@
 import pygame
 import sys
 import os
+import character_editor
+import sqlite3
 
 
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
-width, height = 1920, 1080
+with open('what_definition.txt', mode='r', encoding='utf-8') as file:
+    width = int(file.read())
+    height = (width // 16) * 9
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 fps = 100
 running = True
+is_character_editor = False
 button_sound = pygame.mixer.Sound('sound_effects/button_click_3.mp3')
 button_track_sound = pygame.mixer.Sound('sound_effects/button_tracking_04.mp3')
 main_menu_music = pygame.mixer.Sound('music/main_menu_music.mp3')
@@ -81,6 +87,7 @@ class StartButton(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
+            init_editor()
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(hover_alpha)
@@ -299,7 +306,50 @@ def init_options():
     back_button = BackButton(all_sprites)
 
 
-defin_button1, defin_button2, back_button = None, None, None
+def init_editor():
+    global editor_back, is_character_editor
+    start_button.kill()
+    exit_button.kill()
+    options_button.kill()
+    menu_back.kill()
+    editor_back = character_editor.EditorBack(width, height, all_sprites)
+    plus_button1 = character_editor.PlusButton1(width, height, all_sprites)
+    minus_button1 = character_editor.MinusButton1(width, height, all_sprites)
+    plus_button2 = character_editor.PlusButton2(width, height, all_sprites)
+    minus_button2 = character_editor.MinusButton2(width, height, all_sprites)
+    plus_button3 = character_editor.PlusButton3(width, height, all_sprites)
+    minus_button3 = character_editor.MinusButton3(width, height, all_sprites)
+    plus_button4 = character_editor.PlusButton4(width, height, all_sprites)
+    minus_button4 = character_editor.MinusButton4(width, height, all_sprites)
+    is_character_editor = True
+
+    with open('what_definition.txt', mode='r', encoding='utf-8') as file:
+        if file.read() == '1920':
+            k = 1
+        else:
+            k = 1.4055636896
+        character_editor.font1 = pygame.font.SysFont('candara', int(50 // k))
+        character_editor.img1 = character_editor.font1.render('0', True, character_editor.font_color)
+        character_editor.img2 = character_editor.font1.render('0', True, character_editor.font_color)
+        character_editor.img3 = character_editor.font1.render('0', True, character_editor.font_color)
+        character_editor.img4 = character_editor.font1.render('0', True, character_editor.font_color)
+
+    connect = sqlite3.connect('game.db')
+    cur = connect.cursor()
+
+    cur.execute('''
+        INSERT INTO characteristics (strength, endurance, iq, body_type)
+        VALUES (?, ?, ?, ?)
+    ''', (0, 0, 0, 0))
+
+    connect.commit()
+    cur.close()
+    connect.close()
+
+
+defin_button1, defin_button2, back_button, editor_back, plus_button1, minus_button1 = None, None, None, None, None, None
+plus_button2, minus_button2, plus_button3, minus_button3 = None, None, None, None
+plus_button4, minus_button4 = None, None
 
 all_sprites = pygame.sprite.Group()
 background = Background(all_sprites)
@@ -315,5 +365,11 @@ while running:
             running = False
         all_sprites.update(event)
         all_sprites.draw(screen)
+        if is_character_editor:
+            screen.blit(character_editor.img1, (width // 2.34718826406, height // 1.67962674961))
+            screen.blit(character_editor.img2, (width // 1.96721311475, height // 1.51472650771))
+            screen.blit(character_editor.img3, (width // 2.09378407852, height // 1.37931034483))
+            screen.blit(character_editor.img4, (width // 1.9452887538, height // 1.26909518214))
+        pygame.display.update()
         pygame.display.flip()
     clock.tick(fps)
