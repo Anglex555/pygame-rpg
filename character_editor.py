@@ -17,12 +17,13 @@ hover_alpha = 215
 pressed_alpha = 150
 disabled_alpha = 100
 font_color = (196, 183, 166)
-tokens = 4
+tokens = 20
+token = 5
 font1 = pygame.font.SysFont('candara', 50)
-img1 = font1.render('0', True, font_color)
-img2 = font1.render('0', True, font_color)
-img3 = font1.render('0', True, font_color)
-img4 = font1.render('0', True, font_color)
+img1 = font1.render('5', True, font_color)
+img2 = font1.render('5', True, font_color)
+img3 = font1.render('5', True, font_color)
+img4 = font1.render('5', True, font_color)
 
 characteristics = {'strength': img1, 'endurance': img2, 'iq': img3, 'body_type': img4}
 
@@ -50,7 +51,7 @@ def change_characteristics(symbol, parameter):
     cur = connect.cursor()
 
     if symbol == '+':
-        tokens -= 1
+        tokens -= token
         if parameter == 'strength':
             img_tokens = cur.execute('''
                 SELECT strength FROM characteristics
@@ -60,8 +61,8 @@ def change_characteristics(symbol, parameter):
                 UPDATE characteristics
                 SET strength = ?
                 WHERE id = 1
-            ''', (str(img_tokens[0] + 1)),)
-            img1 = font1.render(f'{img_tokens[0] + 1}', True, font_color)
+            ''', (str(img_tokens[0] + token),))
+            img1 = font1.render(f'{img_tokens[0] + token}', True, font_color)
         elif parameter == 'endurance':
             img_tokens = cur.execute('''
                 SELECT endurance FROM characteristics
@@ -71,8 +72,8 @@ def change_characteristics(symbol, parameter):
                 UPDATE characteristics
                 SET endurance = ?
                 WHERE id = 1
-            ''', (str(img_tokens[0] + 1)),)
-            img2 = font1.render(f'{img_tokens[0] + 1}', True, font_color)
+            ''', (str(img_tokens[0] + token),))
+            img2 = font1.render(f'{img_tokens[0] + token}', True, font_color)
         elif parameter == 'iq':
             img_tokens = cur.execute('''
                 SELECT iq FROM characteristics
@@ -82,8 +83,8 @@ def change_characteristics(symbol, parameter):
                 UPDATE characteristics
                 SET iq = ?
                 WHERE id = 1
-            ''', (str(img_tokens[0] + 1)),)
-            img3 = font1.render(f'{img_tokens[0] + 1}', True, font_color)
+            ''', (str(img_tokens[0] + token),))
+            img3 = font1.render(f'{img_tokens[0] + token}', True, font_color)
         else:
             img_tokens = cur.execute('''
                 SELECT body_type FROM characteristics
@@ -93,8 +94,8 @@ def change_characteristics(symbol, parameter):
                 UPDATE characteristics
                 SET body_type = ?
                 WHERE id = 1
-            ''', (str(img_tokens[0] + 1)),)
-            img4 = font1.render(f'{img_tokens[0] + 1}', True, font_color)
+            ''', (str(img_tokens[0] + token),))
+            img4 = font1.render(f'{img_tokens[0] + token}', True, font_color)
 
     else:
         if parameter == 'strength':
@@ -102,53 +103,53 @@ def change_characteristics(symbol, parameter):
                 SELECT strength FROM characteristics
                 WHERE id = 1
             ''').fetchone()
-            if img_tokens[0] > 0:
+            if img_tokens[0] > 5:
                 cur.execute('''
                     UPDATE characteristics
                     SET strength = ?
                     WHERE id = 1
-                ''', (str(img_tokens[0] - 1)),)
-                tokens += 1
-                img1 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
+                ''', (str(img_tokens[0] - token),))
+                tokens += token
+                img1 = font1.render(f'{img_tokens[0] - token}', True, font_color)
         elif parameter == 'endurance':
             img_tokens = cur.execute('''
                 SELECT endurance FROM characteristics
                 WHERE id = 1
             ''').fetchone()
-            if img_tokens[0] > 0:
+            if img_tokens[0] > 5:
                 cur.execute('''
                     UPDATE characteristics
                     SET endurance = ?
                     WHERE id = 1
-                ''', (str(img_tokens[0] - 1)),)
-                tokens += 1
-                img2 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
+                ''', (str(img_tokens[0] - token),))
+                tokens += token
+                img2 = font1.render(f'{img_tokens[0] - token}', True, font_color)
         elif parameter == 'iq':
             img_tokens = cur.execute('''
                 SELECT iq FROM characteristics
                 WHERE id = 1
             ''').fetchone()
-            if img_tokens[0] > 0:
+            if img_tokens[0] > 5:
                 cur.execute('''
                     UPDATE characteristics
                     SET iq = ?
                     WHERE id = 1
-                ''', (str(img_tokens[0] - 1)),)
-                tokens += 1
-                img3 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
+                ''', (str(img_tokens[0] - token),))
+                tokens += token
+                img3 = font1.render(f'{img_tokens[0] - token}', True, font_color)
         else:
             img_tokens = cur.execute('''
                 SELECT body_type FROM characteristics
                 WHERE id = 1
             ''').fetchone()
-            if img_tokens[0] > 0:
+            if img_tokens[0] > 5:
                 cur.execute('''
                     UPDATE characteristics
                     SET body_type = ?
                     WHERE id = 1
-                ''', (str(img_tokens[0] - 1)),)
-                tokens += 1
-                img4 = font1.render(f'{img_tokens[0] - 1}', True, font_color)
+                ''', (str(img_tokens[0] - token),))
+                tokens += token
+                img4 = font1.render(f'{img_tokens[0] - token}', True, font_color)
 
     connect.commit()
     cur.close()
@@ -226,7 +227,7 @@ class MinusButton1(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
-            if tokens < 4:
+            if tokens < 20:
                 change_characteristics('-', 'strength')
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):
@@ -294,7 +295,7 @@ class MinusButton2(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
-            if tokens < 4:
+            if tokens < 20:
                 change_characteristics('-', 'endurance')
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):
@@ -362,7 +363,7 @@ class MinusButton3(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
-            if tokens < 4:
+            if tokens < 20:
                 change_characteristics('-', 'iq')
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):
@@ -430,7 +431,7 @@ class MinusButton4(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
-            if tokens < 4:
+            if tokens < 20:
                 change_characteristics('-', 'body_type')
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):

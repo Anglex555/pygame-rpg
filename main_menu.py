@@ -329,10 +329,10 @@ def init_editor():
         else:
             k = 1.4055636896
         character_editor.font1 = pygame.font.SysFont('candara', int(50 // k))
-        character_editor.img1 = character_editor.font1.render('0', True, character_editor.font_color)
-        character_editor.img2 = character_editor.font1.render('0', True, character_editor.font_color)
-        character_editor.img3 = character_editor.font1.render('0', True, character_editor.font_color)
-        character_editor.img4 = character_editor.font1.render('0', True, character_editor.font_color)
+        character_editor.img1 = character_editor.font1.render('5', True, character_editor.font_color)
+        character_editor.img2 = character_editor.font1.render('5', True, character_editor.font_color)
+        character_editor.img3 = character_editor.font1.render('5', True, character_editor.font_color)
+        character_editor.img4 = character_editor.font1.render('5', True, character_editor.font_color)
 
     connect = sqlite3.connect('game.db')
     cur = connect.cursor()
@@ -340,7 +340,7 @@ def init_editor():
     cur.execute('''
         INSERT INTO characteristics (strength, endurance, iq, body_type)
         VALUES (?, ?, ?, ?)
-    ''', (0, 0, 0, 0))
+    ''', (5, 5, 5, 5))
 
     connect.commit()
     cur.close()
