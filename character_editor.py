@@ -17,6 +17,7 @@ hover_alpha = 215
 pressed_alpha = 150
 disabled_alpha = 100
 font_color = (196, 183, 166)
+font_color2 = (146, 107, 56)
 tokens = 20
 token = 5
 font1 = pygame.font.SysFont('candara', 50)
@@ -26,6 +27,14 @@ img3 = font1.render('5', True, font_color)
 img4 = font1.render('5', True, font_color)
 
 characteristics = {'strength': img1, 'endurance': img2, 'iq': img3, 'body_type': img4}
+
+font2 = pygame.font.SysFont('candara', 35)
+hint_text1 = 'У вас есть 4 токена, 1 токен равня-'
+hint_text2 = 'ется 5. Распределите все токены'
+hint_text3 = 'по характеристикам.'
+img_hint_text1 = font2.render(hint_text1, True, font_color2)
+img_hint_text2 = font2.render(hint_text2, True, font_color2)
+img_hint_text3 = font2.render(hint_text3, True, font_color2)
 
 
 def load_image(name, colorkey=None):
@@ -168,6 +177,23 @@ class EditorBack(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = width // 3.09677419355
         self.rect.y = height // 18
+
+
+class BlackBackground(pygame.sprite.Sprite):
+    image_black_background = pygame.Surface([719, 664])
+    image_black_background.fill(pygame.Color("black"))
+
+    def __init__(self, width, height, *group):
+        super().__init__(*group)
+        image_width = round(BlackBackground.image_black_background.get_width() / (2560 / width))
+        image_height = round(BlackBackground.image_black_background.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(BlackBackground.image_black_background,
+                                            (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x = width // 1.45454545455
+        self.rect.y = height // 16.6153846154
+
+        self.image.set_alpha(225)
 
 
 class PlusButton1(pygame.sprite.Sprite):

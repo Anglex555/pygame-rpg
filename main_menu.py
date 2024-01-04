@@ -15,6 +15,7 @@ clock = pygame.time.Clock()
 fps = 100
 running = True
 is_character_editor = False
+is_options = False
 button_sound = pygame.mixer.Sound('sound_effects/button_click_3.mp3')
 button_track_sound = pygame.mixer.Sound('sound_effects/button_tracking_04.mp3')
 main_menu_music = pygame.mixer.Sound('music/main_menu_music.mp3')
@@ -176,8 +177,8 @@ class ResolutionButton1(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(ResolutionButton1.image_definition_button,
                                                               (image_width, image_height))
         self.rect = self.image.get_rect()
-        self.rect.x = width // 1.92
-        self.rect.y = height // 3.9272727273
+        self.rect.x = width // 2.16949152542
+        self.rect.y = height // 3.72413793103
         self.is_mouse_track = False
 
     def update(self, *args):
@@ -213,8 +214,8 @@ class ResolutionButton2(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(ResolutionButton2.image_definition_button,
                                                               (image_width, image_height))
         self.rect = self.image.get_rect()
-        self.rect.x = width // 1.92
-        self.rect.y = height // 2.88
+        self.rect.x = width // 1.81132075472
+        self.rect.y = height // 3.72413793103
         self.is_mouse_track = False
 
     def update(self, *args):
@@ -285,7 +286,7 @@ def change_resolution(w, h):
 
 def init_main_menu():
     global background, menu_back, start_button, exit_button, options_button, \
-        defin_button1, defin_button2, back_button
+        defin_button1, defin_button2, back_button, is_options
     defin_button1.kill()
     defin_button2.kill()
     back_button.kill()
@@ -294,16 +295,25 @@ def init_main_menu():
     start_button = StartButton(all_sprites)
     exit_button = ExitButton(all_sprites)
     options_button = OptionsButton(all_sprites)
+    is_options = False
 
 
 def init_options():
-    global defin_button1, defin_button2, back_button
+    global defin_button1, defin_button2, back_button, img_resolution, is_options
     start_button.kill()
     exit_button.kill()
     options_button.kill()
     defin_button1 = ResolutionButton1(all_sprites)
     defin_button2 = ResolutionButton2(all_sprites)
     back_button = BackButton(all_sprites)
+    is_options = True
+    with open('what_definition.txt', mode='r', encoding='utf-8') as file:
+        if file.read() == '1920':
+            k = 1
+        else:
+            k = 1.4055636896
+        font = pygame.font.SysFont('candara', int(35 // k))
+        img_resolution = font.render('Разрешение:', True, (146, 107, 56))
 
 
 def init_editor():
@@ -321,6 +331,7 @@ def init_editor():
     minus_button3 = character_editor.MinusButton3(width, height, all_sprites)
     plus_button4 = character_editor.PlusButton4(width, height, all_sprites)
     minus_button4 = character_editor.MinusButton4(width, height, all_sprites)
+    black_background = character_editor.BlackBackground(width, height, all_sprites)
     is_character_editor = True
 
     with open('what_definition.txt', mode='r', encoding='utf-8') as file:
@@ -329,11 +340,19 @@ def init_editor():
         else:
             k = 1.4055636896
         character_editor.font1 = pygame.font.SysFont('candara', int(50 // k))
+        character_editor.font2 = pygame.font.SysFont('candara', int(35 // k))
         character_editor.img1 = character_editor.font1.render('5', True, character_editor.font_color)
         character_editor.img2 = character_editor.font1.render('5', True, character_editor.font_color)
         character_editor.img3 = character_editor.font1.render('5', True, character_editor.font_color)
         character_editor.img4 = character_editor.font1.render('5', True, character_editor.font_color)
-
+        character_editor.img_hint_text = character_editor.font2.render(character_editor.hint_text1,
+                                                                       True, character_editor.font_color2)
+        character_editor.img_hint_text1 = character_editor.font2.render(character_editor.hint_text1,
+                                                                       True, character_editor.font_color2)
+        character_editor.img_hint_text2 = character_editor.font2.render(character_editor.hint_text2,
+                                                                        True, character_editor.font_color2)
+        character_editor.img_hint_text3 = character_editor.font2.render(character_editor.hint_text3,
+                                                                        True, character_editor.font_color2)
     connect = sqlite3.connect('game.db')
     cur = connect.cursor()
 
@@ -349,7 +368,7 @@ def init_editor():
 
 defin_button1, defin_button2, back_button, editor_back, plus_button1, minus_button1 = None, None, None, None, None, None
 plus_button2, minus_button2, plus_button3, minus_button3 = None, None, None, None
-plus_button4, minus_button4 = None, None
+plus_button4, minus_button4, black_background, img_resolution = None, None, None, None
 
 all_sprites = pygame.sprite.Group()
 background = Background(all_sprites)
@@ -370,6 +389,20 @@ while running:
             screen.blit(character_editor.img2, (width // 1.96721311475, height // 1.51472650771))
             screen.blit(character_editor.img3, (width // 2.09378407852, height // 1.37931034483))
             screen.blit(character_editor.img4, (width // 1.9452887538, height // 1.26909518214))
+            screen.blit(character_editor.img_hint_text1, (width // 1.4479638009, height // 15.8823529412))
+            screen.blit(character_editor.img_hint_text2, (width // 1.4479638009, height // 10.5882352941))
+            screen.blit(character_editor.img_hint_text3, (width // 1.4479638009, height // 7.94117647059))
+        if is_options:
+            with open('what_definition.txt', mode='r', encoding='utf-8') as file:
+                if file.read() == '1920':
+                    k = 1
+                else:
+                    k = 1.4055636896
+                font = pygame.font.SysFont('candara', int(35 // k))
+                img_resolution = font.render('Разрешение:', True, (146, 107, 56))
+            screen.blit(img_resolution, (width // 2.86995515695, height // 3.6))
         pygame.display.update()
         pygame.display.flip()
     clock.tick(fps)
+
+pygame.quit()
