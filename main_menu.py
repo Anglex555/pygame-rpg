@@ -337,8 +337,6 @@ def init_editor():
 
     new_id = max_id + 1
 
-    print(f"max_id: {max_id}, new_id: {new_id}")
-
     cur.close()
     connect.close()
 
@@ -361,8 +359,7 @@ def init_editor():
                                  'body_type', new_id, all_sprites)
 
     black_background = character_editor.BlackBackground(width, height, all_sprites)
-    all_sprites.add(plus_button_1, minus_button_1, plus_button_2, minus_button_2,
-                    plus_button_3, minus_button_3, plus_button_4, minus_button_4)
+    continue_button = character_editor.ContinueButton(width, height, all_sprites)
 
     is_character_editor = True
 

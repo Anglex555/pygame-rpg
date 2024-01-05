@@ -8,7 +8,8 @@ pygame.init()
 with open('what_definition.txt', mode='r', encoding='utf-8') as file:
     width = int(file.read())
     height = (width // 16) * 9
-button_sound = pygame.mixer.Sound('sound_effects/button_click_4.mp3')
+button_sound2 = pygame.mixer.Sound('sound_effects/button_click_4.mp3')
+button_sound = pygame.mixer.Sound('sound_effects/button_click_3.mp3')
 button_track_sound = pygame.mixer.Sound('sound_effects/button_tracking_04.mp3')
 main_menu_music = pygame.mixer.Sound('music/main_menu_music.mp3')
 screen = pygame.display.set_mode((width, height))
@@ -142,7 +143,7 @@ class PlusButton(pygame.sprite.Sprite):
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
-            button_sound.play()
+            button_sound2.play()
             if tokens > 0:
                 change_characteristics('+', self.characteristic, self.character_id)
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
@@ -176,7 +177,7 @@ class MinusButton(pygame.sprite.Sprite):
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
-            button_sound.play()
+            button_sound2.play()
             if tokens < 20:
                 change_characteristics('-', self.characteristic, self.character_id)
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
@@ -186,3 +187,42 @@ class MinusButton(pygame.sprite.Sprite):
                 not self.rect.collidepoint(args[0].pos):
             self.is_mouse_track = False
             self.image.set_alpha(normal_alpha)
+
+
+class ContinueButton(pygame.sprite.Sprite):
+    image_continue_button = load_image('pics/continue_button.png')
+
+    def __init__(self, width, height, *group):
+        super().__init__(*group)
+        image_width = round(ContinueButton.image_continue_button.get_width() / (2560 / width))
+        image_height = round(ContinueButton.image_continue_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(ContinueButton.image_continue_button,
+                                            (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x = width // 1.74545454545
+        self.rect.y = height // 1.12970711297
+        self.is_mouse_track = False
+
+    def update(self, *args):
+        if tokens == 0:
+            self.image.set_alpha(normal_alpha)
+        else:
+            self.image.set_alpha(disabled_alpha)
+        if self.image.get_alpha() != disabled_alpha:
+            if args and args[0].type == pygame.MOUSEMOTION and \
+                    self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
+                self.image.set_alpha(hover_alpha)
+                button_track_sound.play()
+                self.is_mouse_track = True
+            if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
+                    self.rect.collidepoint(args[0].pos):
+                self.image.set_alpha(pressed_alpha)
+                button_sound.play()
+            if args and args[0].type == pygame.MOUSEBUTTONUP and \
+                    self.rect.collidepoint(args[0].pos):
+                self.image.set_alpha(hover_alpha)
+            elif args and args[0].type == pygame.MOUSEMOTION and \
+                    not self.rect.collidepoint(args[0].pos):
+                self.is_mouse_track = False
+                self.image.set_alpha(normal_alpha)
+
