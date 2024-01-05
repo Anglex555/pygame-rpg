@@ -62,12 +62,14 @@ def change_characteristics(symbol, parameter, character_id):
     if symbol == '+':
         tokens -= 5
         img_tokens = cur.execute(f'SELECT {parameter} FROM characteristics WHERE id = {character_id}').fetchone()
-        cur.execute(f'UPDATE characteristics SET {parameter} = ? WHERE id = {character_id}', (img_tokens[0] + 5,))
+        cur.execute(f'UPDATE characteristics SET {parameter} = ? WHERE id = {character_id}',
+                    (img_tokens[0] + 5,))
         characteristics[parameter] = font1.render(f'{img_tokens[0] + 5}', True, font_color)
     else:
         img_tokens = cur.execute(f'SELECT {parameter} FROM characteristics WHERE id = {character_id}').fetchone()
-        if img_tokens[0] > 0:
-            cur.execute(f'UPDATE characteristics SET {parameter} = ? WHERE id = {character_id}', (img_tokens[0] - 5,))
+        if img_tokens[0] > 5:
+            cur.execute(f'UPDATE characteristics SET {parameter} = ? WHERE id = {character_id}',
+                        (img_tokens[0] - 5,))
             tokens += 5
             characteristics[parameter] = font1.render(f'{img_tokens[0] - 5}', True, font_color)
 
@@ -175,7 +177,7 @@ class MinusButton(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
-            if tokens < 4:
+            if tokens < 20:
                 change_characteristics('-', self.characteristic, self.character_id)
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):

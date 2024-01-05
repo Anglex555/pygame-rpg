@@ -318,7 +318,6 @@ def init_options():
         img_resolution = font.render('Разрешение:', True, (146, 107, 56))
 
 
-
 def init_editor():
     global editor_back, is_character_editor
     start_button.kill()
@@ -343,15 +342,23 @@ def init_editor():
     cur.close()
     connect.close()
 
-    plus_button_1 = PlusButton(width, height, (width // 1.66956521739, height // 1.66666666667), 'strength', new_id, all_sprites)
-    plus_button_2 = PlusButton(width, height, (width // 1.66956521739, height // 1.50627615063), 'endurance', new_id, all_sprites)
-    plus_button_3 = PlusButton(width, height, (width // 1.66956521739, height // 1.37404580153), 'iq', new_id, all_sprites)
-    plus_button_4 = PlusButton(width, height, (width // 1.66956521739, height // 1.26315789474), 'body_type', new_id, all_sprites)
+    plus_button_1 = PlusButton(width, height, (width // 1.66956521739, height // 1.66666666667),
+                               'strength', new_id, all_sprites)
+    plus_button_2 = PlusButton(width, height, (width // 1.66956521739, height // 1.50627615063),
+                               'endurance', new_id, all_sprites)
+    plus_button_3 = PlusButton(width, height, (width // 1.66956521739, height // 1.37404580153),
+                               'iq', new_id, all_sprites)
+    plus_button_4 = PlusButton(width, height, (width // 1.66956521739, height // 1.26315789474),
+                               'body_type', new_id, all_sprites)
 
-    minus_button_1 = MinusButton(width, height, (width // 1.72972972973, height // 1.66666666667), 'strength', new_id, all_sprites)
-    minus_button_2 = MinusButton(width, height, (width // 1.72972972973, height // 1.50627615063), 'endurance', new_id, all_sprites)
-    minus_button_3 = MinusButton(width, height, (width // 1.72972972973, height // 1.37404580153), 'iq', new_id, all_sprites)
-    minus_button_4 = MinusButton(width, height, (width // 1.72972972973, height // 1.26315789474), 'body_type', new_id, all_sprites)
+    minus_button_1 = MinusButton(width, height, (width // 1.72972972973, height // 1.66666666667),
+                                 'strength', new_id, all_sprites)
+    minus_button_2 = MinusButton(width, height, (width // 1.72972972973, height // 1.50627615063),
+                                 'endurance', new_id, all_sprites)
+    minus_button_3 = MinusButton(width, height, (width // 1.72972972973, height // 1.37404580153),
+                                 'iq', new_id, all_sprites)
+    minus_button_4 = MinusButton(width, height, (width // 1.72972972973, height // 1.26315789474),
+                                 'body_type', new_id, all_sprites)
 
     black_background = character_editor.BlackBackground(width, height, all_sprites)
     all_sprites.add(plus_button_1, minus_button_1, plus_button_2, minus_button_2,
