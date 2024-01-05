@@ -53,130 +53,38 @@ def load_image(name, colorkey=None):
     return image
 
 
-def change_characteristics(symbol, parameter):
+def change_characteristics(symbol, parameter, character_id):
     global tokens, characteristics, img1, img2, img3, img4, font_color, font1
 
     connect = sqlite3.connect('game.db')
     cur = connect.cursor()
 
     if symbol == '+':
-        tokens -= token
-        if parameter == 'strength':
-            img_tokens = cur.execute('''
-                SELECT strength FROM characteristics
-                WHERE id = 1
-            ''').fetchone()
-            cur.execute('''
-                UPDATE characteristics
-                SET strength = ?
-                WHERE id = 1
-            ''', (str(img_tokens[0] + token),))
-            img1 = font1.render(f'{img_tokens[0] + token}', True, font_color)
-        elif parameter == 'endurance':
-            img_tokens = cur.execute('''
-                SELECT endurance FROM characteristics
-                WHERE id = 1
-            ''').fetchone()
-            cur.execute('''
-                UPDATE characteristics
-                SET endurance = ?
-                WHERE id = 1
-            ''', (str(img_tokens[0] + token),))
-            img2 = font1.render(f'{img_tokens[0] + token}', True, font_color)
-        elif parameter == 'iq':
-            img_tokens = cur.execute('''
-                SELECT iq FROM characteristics
-                WHERE id = 1
-            ''').fetchone()
-            cur.execute('''
-                UPDATE characteristics
-                SET iq = ?
-                WHERE id = 1
-            ''', (str(img_tokens[0] + token),))
-            img3 = font1.render(f'{img_tokens[0] + token}', True, font_color)
-        else:
-            img_tokens = cur.execute('''
-                SELECT body_type FROM characteristics
-                WHERE id = 1
-            ''').fetchone()
-            cur.execute('''
-                UPDATE characteristics
-                SET body_type = ?
-                WHERE id = 1
-            ''', (str(img_tokens[0] + token),))
-            img4 = font1.render(f'{img_tokens[0] + token}', True, font_color)
-
+        tokens -= 5
+        img_tokens = cur.execute(f'SELECT {parameter} FROM characteristics WHERE id = {character_id}').fetchone()
+        cur.execute(f'UPDATE characteristics SET {parameter} = ? WHERE id = {character_id}', (img_tokens[0] + 5,))
+        characteristics[parameter] = font1.render(f'{img_tokens[0] + 5}', True, font_color)
     else:
-        if parameter == 'strength':
-            img_tokens = cur.execute('''
-                SELECT strength FROM characteristics
-                WHERE id = 1
-            ''').fetchone()
-            if img_tokens[0] > 5:
-                cur.execute('''
-                    UPDATE characteristics
-                    SET strength = ?
-                    WHERE id = 1
-                ''', (str(img_tokens[0] - token),))
-                tokens += token
-                img1 = font1.render(f'{img_tokens[0] - token}', True, font_color)
-        elif parameter == 'endurance':
-            img_tokens = cur.execute('''
-                SELECT endurance FROM characteristics
-                WHERE id = 1
-            ''').fetchone()
-            if img_tokens[0] > 5:
-                cur.execute('''
-                    UPDATE characteristics
-                    SET endurance = ?
-                    WHERE id = 1
-                ''', (str(img_tokens[0] - token),))
-                tokens += token
-                img2 = font1.render(f'{img_tokens[0] - token}', True, font_color)
-        elif parameter == 'iq':
-            img_tokens = cur.execute('''
-                SELECT iq FROM characteristics
-                WHERE id = 1
-            ''').fetchone()
-            if img_tokens[0] > 5:
-                cur.execute('''
-                    UPDATE characteristics
-                    SET iq = ?
-                    WHERE id = 1
-                ''', (str(img_tokens[0] - token),))
-                tokens += token
-                img3 = font1.render(f'{img_tokens[0] - token}', True, font_color)
-        else:
-            img_tokens = cur.execute('''
-                SELECT body_type FROM characteristics
-                WHERE id = 1
-            ''').fetchone()
-            if img_tokens[0] > 5:
-                cur.execute('''
-                    UPDATE characteristics
-                    SET body_type = ?
-                    WHERE id = 1
-                ''', (str(img_tokens[0] - token),))
-                tokens += token
-                img4 = font1.render(f'{img_tokens[0] - token}', True, font_color)
+        img_tokens = cur.execute(f'SELECT {parameter} FROM characteristics WHERE id = {character_id}').fetchone()
+        if img_tokens[0] > 0:
+            cur.execute(f'UPDATE characteristics SET {parameter} = ? WHERE id = {character_id}', (img_tokens[0] - 5,))
+            tokens += 5
+            characteristics[parameter] = font1.render(f'{img_tokens[0] - 5}', True, font_color)
+
+    img_tokens = cur.execute(f'SELECT {parameter} FROM characteristics WHERE id = {character_id}').fetchone()
+
+    if parameter == 'strength':
+        img1 = font1.render(f'{img_tokens[0]}', True, font_color)
+    elif parameter == 'endurance':
+        img2 = font1.render(f'{img_tokens[0]}', True, font_color)
+    elif parameter == 'iq':
+        img3 = font1.render(f'{img_tokens[0]}', True, font_color)
+    else:
+        img4 = font1.render(f'{img_tokens[0]}', True, font_color)
 
     connect.commit()
     cur.close()
     connect.close()
-
-
-class EditorBack(pygame.sprite.Sprite):
-    image_editor_back = load_image('pics/character_editor3.2.png')
-
-    def __init__(self, width, height, *group):
-        super().__init__(*group)
-        image_width = round(EditorBack.image_editor_back.get_width() / (2560 / width))
-        image_height = round(EditorBack.image_editor_back.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(EditorBack.image_editor_back,
-                                            (image_width, image_height))
-        self.rect = self.image.get_rect()
-        self.rect.x = width // 3.09677419355
-        self.rect.y = height // 18
 
 
 class BlackBackground(pygame.sprite.Sprite):
@@ -196,19 +104,33 @@ class BlackBackground(pygame.sprite.Sprite):
         self.image.set_alpha(225)
 
 
-class PlusButton1(pygame.sprite.Sprite):
-    image_plus_button = load_image('pics/plus_button.png')
+class EditorBack(pygame.sprite.Sprite):
+    image_editor_back = load_image('pics/character_editor3.2.png')
 
     def __init__(self, width, height, *group):
         super().__init__(*group)
-        image_width = round(PlusButton1.image_plus_button.get_width() / (2560 / width))
-        image_height = round(PlusButton1.image_plus_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(PlusButton1.image_plus_button,
+        image_width = round(EditorBack.image_editor_back.get_width() / (2560 / width))
+        image_height = round(EditorBack.image_editor_back.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(EditorBack.image_editor_back,
                                             (image_width, image_height))
         self.rect = self.image.get_rect()
-        self.rect.x = width // 1.66956521739
-        self.rect.y = height // 1.66666666667
+        self.rect.x = width // 3.09677419355
+        self.rect.y = height // 18
+
+
+class PlusButton(pygame.sprite.Sprite):
+    image_plus_button = load_image('pics/plus_button.png')
+
+    def __init__(self, width, height, position, characteristic, character_id, *groups):
+        super().__init__(*groups)
+        self.character_id = character_id
+        image_width = round(PlusButton.image_plus_button.get_width() / (2560 / width))
+        image_height = round(PlusButton.image_plus_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(PlusButton.image_plus_button, (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = position
         self.is_mouse_track = False
+        self.characteristic = characteristic
 
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEMOTION and \
@@ -220,7 +142,7 @@ class PlusButton1(pygame.sprite.Sprite):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
             if tokens > 0:
-                change_characteristics('+', 'strength')
+                change_characteristics('+', self.characteristic, self.character_id)
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(hover_alpha)
@@ -230,19 +152,19 @@ class PlusButton1(pygame.sprite.Sprite):
             self.image.set_alpha(normal_alpha)
 
 
-class MinusButton1(pygame.sprite.Sprite):
+class MinusButton(pygame.sprite.Sprite):
     image_minus_button = load_image('pics/minus_button.png')
 
-    def __init__(self, width, height, *group):
-        super().__init__(*group)
-        image_width = round(MinusButton1.image_minus_button.get_width() / (2560 / width))
-        image_height = round(MinusButton1.image_minus_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(MinusButton1.image_minus_button,
-                                            (image_width, image_height))
+    def __init__(self, width, height, position, characteristic, character_id, *groups):
+        super().__init__(*groups)
+        self.character_id = character_id
+        image_width = round(MinusButton.image_minus_button.get_width() / (2560 / width))
+        image_height = round(MinusButton.image_minus_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(MinusButton.image_minus_button, (image_width, image_height))
         self.rect = self.image.get_rect()
-        self.rect.x = width // 1.72972972973
-        self.rect.y = height // 1.66666666667
+        self.rect.x, self.rect.y = position
         self.is_mouse_track = False
+        self.characteristic = characteristic
 
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEMOTION and \
@@ -253,212 +175,8 @@ class MinusButton1(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
-            if tokens < 20:
-                change_characteristics('-', 'strength')
-        if args and args[0].type == pygame.MOUSEBUTTONUP and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(hover_alpha)
-        elif args and args[0].type == pygame.MOUSEMOTION and \
-                not self.rect.collidepoint(args[0].pos):
-            self.is_mouse_track = False
-            self.image.set_alpha(normal_alpha)
-
-
-class PlusButton2(pygame.sprite.Sprite):
-    image_plus_button = load_image('pics/plus_button.png')
-
-    def __init__(self, width, height, *group):
-        super().__init__(*group)
-        image_width = round(PlusButton2.image_plus_button.get_width() / (2560 / width))
-        image_height = round(PlusButton2.image_plus_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(PlusButton2.image_plus_button,
-                                            (image_width, image_height))
-        self.rect = self.image.get_rect()
-        self.rect.x = width // 1.66956521739
-        self.rect.y = height // 1.50627615063
-        self.is_mouse_track = False
-
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEMOTION and \
-                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
-            self.image.set_alpha(hover_alpha)
-            self.is_mouse_track = True
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(pressed_alpha)
-            button_sound.play()
-            if tokens > 0:
-                change_characteristics('+', 'endurance')
-        if args and args[0].type == pygame.MOUSEBUTTONUP and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(hover_alpha)
-        elif args and args[0].type == pygame.MOUSEMOTION and \
-                not self.rect.collidepoint(args[0].pos):
-            self.is_mouse_track = False
-            self.image.set_alpha(normal_alpha)
-
-
-class MinusButton2(pygame.sprite.Sprite):
-    image_minus_button = load_image('pics/minus_button.png')
-
-    def __init__(self, width, height, *group):
-        super().__init__(*group)
-        image_width = round(MinusButton2.image_minus_button.get_width() / (2560 / width))
-        image_height = round(MinusButton2.image_minus_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(MinusButton2.image_minus_button,
-                                            (image_width, image_height))
-        self.rect = self.image.get_rect()
-        self.rect.x = width // 1.72972972973
-        self.rect.y = height // 1.50627615063
-        self.is_mouse_track = False
-
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEMOTION and \
-                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
-            self.image.set_alpha(hover_alpha)
-            self.is_mouse_track = True
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(pressed_alpha)
-            button_sound.play()
-            if tokens < 20:
-                change_characteristics('-', 'endurance')
-        if args and args[0].type == pygame.MOUSEBUTTONUP and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(hover_alpha)
-        elif args and args[0].type == pygame.MOUSEMOTION and \
-                not self.rect.collidepoint(args[0].pos):
-            self.is_mouse_track = False
-            self.image.set_alpha(normal_alpha)
-
-
-class PlusButton3(pygame.sprite.Sprite):
-    image_plus_button = load_image('pics/plus_button.png')
-
-    def __init__(self, width, height, *group):
-        super().__init__(*group)
-        image_width = round(PlusButton3.image_plus_button.get_width() / (2560 / width))
-        image_height = round(PlusButton3.image_plus_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(PlusButton3.image_plus_button,
-                                            (image_width, image_height))
-        self.rect = self.image.get_rect()
-        self.rect.x = width // 1.66956521739
-        self.rect.y = height // 1.37404580153
-        self.is_mouse_track = False
-
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEMOTION and \
-                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
-            self.image.set_alpha(hover_alpha)
-            self.is_mouse_track = True
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(pressed_alpha)
-            button_sound.play()
-            if tokens > 0:
-                change_characteristics('+', 'iq')
-        if args and args[0].type == pygame.MOUSEBUTTONUP and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(hover_alpha)
-        elif args and args[0].type == pygame.MOUSEMOTION and \
-                not self.rect.collidepoint(args[0].pos):
-            self.is_mouse_track = False
-            self.image.set_alpha(normal_alpha)
-
-
-class MinusButton3(pygame.sprite.Sprite):
-    image_minus_button = load_image('pics/minus_button.png')
-
-    def __init__(self, width, height, *group):
-        super().__init__(*group)
-        image_width = round(MinusButton3.image_minus_button.get_width() / (2560 / width))
-        image_height = round(MinusButton3.image_minus_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(MinusButton3.image_minus_button,
-                                            (image_width, image_height))
-        self.rect = self.image.get_rect()
-        self.rect.x = width // 1.72972972973
-        self.rect.y = height // 1.37404580153
-        self.is_mouse_track = False
-
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEMOTION and \
-                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
-            self.image.set_alpha(hover_alpha)
-            self.is_mouse_track = True
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(pressed_alpha)
-            button_sound.play()
-            if tokens < 20:
-                change_characteristics('-', 'iq')
-        if args and args[0].type == pygame.MOUSEBUTTONUP and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(hover_alpha)
-        elif args and args[0].type == pygame.MOUSEMOTION and \
-                not self.rect.collidepoint(args[0].pos):
-            self.is_mouse_track = False
-            self.image.set_alpha(normal_alpha)
-
-
-class PlusButton4(pygame.sprite.Sprite):
-    image_plus_button = load_image('pics/plus_button.png')
-
-    def __init__(self, width, height, *group):
-        super().__init__(*group)
-        image_width = round(PlusButton4.image_plus_button.get_width() / (2560 / width))
-        image_height = round(PlusButton4.image_plus_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(PlusButton4.image_plus_button,
-                                            (image_width, image_height))
-        self.rect = self.image.get_rect()
-        self.rect.x = width // 1.66956521739
-        self.rect.y = height // 1.26315789474
-        self.is_mouse_track = False
-
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEMOTION and \
-                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
-            self.image.set_alpha(hover_alpha)
-            self.is_mouse_track = True
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(pressed_alpha)
-            button_sound.play()
-            if tokens > 0:
-                change_characteristics('+', 'body_type')
-        if args and args[0].type == pygame.MOUSEBUTTONUP and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(hover_alpha)
-        elif args and args[0].type == pygame.MOUSEMOTION and \
-                not self.rect.collidepoint(args[0].pos):
-            self.is_mouse_track = False
-            self.image.set_alpha(normal_alpha)
-
-
-class MinusButton4(pygame.sprite.Sprite):
-    image_minus_button = load_image('pics/minus_button.png')
-
-    def __init__(self, width, height, *group):
-        super().__init__(*group)
-        image_width = round(MinusButton4.image_minus_button.get_width() / (2560 / width))
-        image_height = round(MinusButton4.image_minus_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(MinusButton4.image_minus_button,
-                                            (image_width, image_height))
-        self.rect = self.image.get_rect()
-        self.rect.x = width // 1.72972972973
-        self.rect.y = height // 1.26315789474
-        self.is_mouse_track = False
-
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEMOTION and \
-                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
-            self.image.set_alpha(hover_alpha)
-            self.is_mouse_track = True
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            self.image.set_alpha(pressed_alpha)
-            button_sound.play()
-            if tokens < 20:
-                change_characteristics('-', 'body_type')
+            if tokens < 4:
+                change_characteristics('-', self.characteristic, self.character_id)
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(hover_alpha)

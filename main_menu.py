@@ -3,6 +3,8 @@ import sys
 import os
 import character_editor
 import sqlite3
+from character_editor import PlusButton
+from character_editor import MinusButton
 
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -316,6 +318,7 @@ def init_options():
         img_resolution = font.render('Разрешение:', True, (146, 107, 56))
 
 
+
 def init_editor():
     global editor_back, is_character_editor
     start_button.kill()
@@ -323,15 +326,37 @@ def init_editor():
     options_button.kill()
     menu_back.kill()
     editor_back = character_editor.EditorBack(width, height, all_sprites)
-    plus_button1 = character_editor.PlusButton1(width, height, all_sprites)
-    minus_button1 = character_editor.MinusButton1(width, height, all_sprites)
-    plus_button2 = character_editor.PlusButton2(width, height, all_sprites)
-    minus_button2 = character_editor.MinusButton2(width, height, all_sprites)
-    plus_button3 = character_editor.PlusButton3(width, height, all_sprites)
-    minus_button3 = character_editor.MinusButton3(width, height, all_sprites)
-    plus_button4 = character_editor.PlusButton4(width, height, all_sprites)
-    minus_button4 = character_editor.MinusButton4(width, height, all_sprites)
+
+    connect = sqlite3.connect('game.db')
+    cur = connect.cursor()
+
+    cur.execute('SELECT MAX(id) FROM characteristics')
+    max_id = cur.fetchone()[0]
+
+    if max_id is None:
+        max_id = 0
+
+    new_id = max_id + 1
+
+    print(f"max_id: {max_id}, new_id: {new_id}")
+
+    cur.close()
+    connect.close()
+
+    plus_button_1 = PlusButton(width, height, (width // 1.66956521739, height // 1.66666666667), 'strength', new_id, all_sprites)
+    plus_button_2 = PlusButton(width, height, (width // 1.66956521739, height // 1.50627615063), 'endurance', new_id, all_sprites)
+    plus_button_3 = PlusButton(width, height, (width // 1.66956521739, height // 1.37404580153), 'iq', new_id, all_sprites)
+    plus_button_4 = PlusButton(width, height, (width // 1.66956521739, height // 1.26315789474), 'body_type', new_id, all_sprites)
+
+    minus_button_1 = MinusButton(width, height, (width // 1.72972972973, height // 1.66666666667), 'strength', new_id, all_sprites)
+    minus_button_2 = MinusButton(width, height, (width // 1.72972972973, height // 1.50627615063), 'endurance', new_id, all_sprites)
+    minus_button_3 = MinusButton(width, height, (width // 1.72972972973, height // 1.37404580153), 'iq', new_id, all_sprites)
+    minus_button_4 = MinusButton(width, height, (width // 1.72972972973, height // 1.26315789474), 'body_type', new_id, all_sprites)
+
     black_background = character_editor.BlackBackground(width, height, all_sprites)
+    all_sprites.add(plus_button_1, minus_button_1, plus_button_2, minus_button_2,
+                    plus_button_3, minus_button_3, plus_button_4, minus_button_4)
+
     is_character_editor = True
 
     with open('what_definition.txt', mode='r', encoding='utf-8') as file:
