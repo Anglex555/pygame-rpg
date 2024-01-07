@@ -374,14 +374,7 @@ def init_editor():
         character_editor.img2 = character_editor.font1.render('5', True, character_editor.font_color)
         character_editor.img3 = character_editor.font1.render('5', True, character_editor.font_color)
         character_editor.img4 = character_editor.font1.render('5', True, character_editor.font_color)
-        character_editor.img_hint_text = character_editor.font2.render(character_editor.hint_text1,
-                                                                       True, character_editor.font_color2)
-        character_editor.img_hint_text1 = character_editor.font2.render(character_editor.hint_text1,
-                                                                       True, character_editor.font_color2)
-        character_editor.img_hint_text2 = character_editor.font2.render(character_editor.hint_text2,
-                                                                        True, character_editor.font_color2)
-        character_editor.img_hint_text3 = character_editor.font2.render(character_editor.hint_text3,
-                                                                        True, character_editor.font_color2)
+
     connect = sqlite3.connect('game.db')
     cur = connect.cursor()
 
@@ -418,9 +411,7 @@ while running:
             screen.blit(character_editor.img2, (width // 1.96721311475, height // 1.51472650771))
             screen.blit(character_editor.img3, (width // 2.09378407852, height // 1.37931034483))
             screen.blit(character_editor.img4, (width // 1.9452887538, height // 1.26909518214))
-            screen.blit(character_editor.img_hint_text1, (width // 1.4479638009, height // 15.8823529412))
-            screen.blit(character_editor.img_hint_text2, (width // 1.4479638009, height // 10.5882352941))
-            screen.blit(character_editor.img_hint_text3, (width // 1.4479638009, height // 7.94117647059))
+            character_editor.hint_text_blit(width, height)
         if is_options:
             with open('what_definition.txt', mode='r', encoding='utf-8') as file:
                 if file.read() == '1920':

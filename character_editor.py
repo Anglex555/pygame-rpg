@@ -29,13 +29,31 @@ img4 = font1.render('5', True, font_color)
 
 characteristics = {'strength': img1, 'endurance': img2, 'iq': img3, 'body_type': img4}
 
-font2 = pygame.font.SysFont('candara', 35)
-hint_text1 = 'У вас есть 4 токена, 1 токен равня-'
-hint_text2 = 'ется 5. Распределите все токены'
-hint_text3 = 'по характеристикам.'
-img_hint_text1 = font2.render(hint_text1, True, font_color2)
-img_hint_text2 = font2.render(hint_text2, True, font_color2)
-img_hint_text3 = font2.render(hint_text3, True, font_color2)
+
+def hint_text_blit(width, height):
+    hint_text = [
+        'У вас есть 4 токена, 1 токен равня-',
+        'ется 5. Распределите все токены',
+        'по характеристикам. Также дайте',
+        'своему персонажу имя.'
+    ]
+
+    with open('what_definition.txt', mode='r', encoding='utf-8') as file:
+        if file.read() == '1920':
+            k = 1
+        else:
+            k = 1.4055636896
+        font2 = pygame.font.SysFont('candara', int(35 // k))
+
+    text_coord = height // 15.8823529412 - 7
+    for line in hint_text:
+        string_rendered = font2.render(line, True, font_color2)
+        intro_rect = string_rendered.get_rect()
+        text_coord += 7
+        intro_rect.top = text_coord
+        intro_rect.x = width // 1.4479638009
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
 
 
 def load_image(name, colorkey=None):
