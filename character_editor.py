@@ -109,7 +109,7 @@ def change_characteristics(symbol, parameter, character_id):
 
 
 class BlackBackground(pygame.sprite.Sprite):
-    image_black_background = pygame.Surface([719, 664])
+    image_black_background = pygame.Surface([719, 230])
     image_black_background.fill(pygame.Color("black"))
 
     def __init__(self, width, height, *group):
@@ -122,7 +122,7 @@ class BlackBackground(pygame.sprite.Sprite):
         self.rect.x = width // 1.45454545455
         self.rect.y = height // 16.6153846154
 
-        self.image.set_alpha(225)
+        self.image.set_alpha(220)
 
 
 class EditorBack(pygame.sprite.Sprite):

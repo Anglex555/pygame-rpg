@@ -18,6 +18,7 @@ fps = 100
 running = True
 is_character_editor = False
 is_options = False
+is_music = False
 button_sound = pygame.mixer.Sound('sound_effects/button_click_3.mp3')
 button_track_sound = pygame.mixer.Sound('sound_effects/button_tracking_04.mp3')
 main_menu_music = pygame.mixer.Sound('music/main_menu_music.mp3')
@@ -25,7 +26,10 @@ normal_alpha = 255
 hover_alpha = 215
 pressed_alpha = 150
 disabled_alpha = 100
-main_menu_music.play()
+with open('is_music.txt', mode='r', encoding='utf-8') as file:
+    if file.read() == 'True':
+        m_music = main_menu_music.play()
+        is_music = True
 
 
 def load_image(name, colorkey=None):
@@ -243,6 +247,85 @@ class ResolutionButton2(pygame.sprite.Sprite):
                 self.is_mouse_track = False
 
 
+class OnMusicButton(pygame.sprite.Sprite):
+    image_on_button = load_image('pics/on_button.png')
+
+    def __init__(self, *group):
+        super().__init__(*group)
+        image_width = round(OnMusicButton.image_on_button.get_width() / (2560 / width))
+        image_height = round(OnMusicButton.image_on_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(OnMusicButton.image_on_button,
+                                            (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x = width // 2.16949152542
+        self.rect.y = height // 2.7
+        self.is_mouse_track = False
+
+    def update(self, *args):
+        global is_music, m_music
+        with open('is_music.txt', mode='r', encoding='utf-8') as file:
+            if file.read() == 'False':
+                self.image.set_alpha(normal_alpha)
+            else:
+                self.image.set_alpha(disabled_alpha)
+        if self.image.get_alpha() != disabled_alpha:
+            if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
+                    self.rect.collidepoint(args[0].pos):
+                self.image.set_alpha(disabled_alpha)
+                button_sound.play()
+                with open('is_music.txt', mode='w', encoding='utf-8') as file:
+                    file.write('True')
+                    if is_music:
+                        m_music.set_volume(1)
+                    else:
+                        m_music = main_menu_music.play()
+                        is_music = True
+            if args and args[0].type == pygame.MOUSEMOTION and \
+                    self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
+                button_track_sound.play()
+                self.is_mouse_track = True
+            elif args and args[0].type == pygame.MOUSEMOTION and \
+                    not self.rect.collidepoint(args[0].pos):
+                self.is_mouse_track = False
+
+
+class OffMusicButton(pygame.sprite.Sprite):
+    image_off_button = load_image('pics/off_button.png')
+
+    def __init__(self, *group):
+        super().__init__(*group)
+        image_width = round(OffMusicButton.image_off_button.get_width() / (2560 / width))
+        image_height = round(OffMusicButton.image_off_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(OffMusicButton.image_off_button,
+                                            (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x = width // 1.87317073171
+        self.rect.y = height // 2.7
+        self.is_mouse_track = False
+
+    def update(self, *args):
+        with open('is_music.txt', mode='r', encoding='utf-8') as file:
+            if file.read() == 'True':
+                self.image.set_alpha(normal_alpha)
+            else:
+                self.image.set_alpha(disabled_alpha)
+        if self.image.get_alpha() != disabled_alpha:
+            if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
+                    self.rect.collidepoint(args[0].pos):
+                self.image.set_alpha(disabled_alpha)
+                button_sound.play()
+                with open('is_music.txt', mode='w', encoding='utf-8') as file:
+                    file.write('False')
+                    m_music.set_volume(0)
+            if args and args[0].type == pygame.MOUSEMOTION and \
+                    self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
+                button_track_sound.play()
+                self.is_mouse_track = True
+            elif args and args[0].type == pygame.MOUSEMOTION and \
+                    not self.rect.collidepoint(args[0].pos):
+                self.is_mouse_track = False
+
+
 class BackButton(pygame.sprite.Sprite):
     image_back_button = load_image('pics/back_button.png')
 
@@ -288,10 +371,12 @@ def change_resolution(w, h):
 
 def init_main_menu():
     global background, menu_back, start_button, exit_button, options_button, \
-        defin_button1, defin_button2, back_button, is_options
+        defin_button1, defin_button2, back_button, is_options, on_music_button, off_music_button
     defin_button1.kill()
     defin_button2.kill()
     back_button.kill()
+    on_music_button.kill()
+    off_music_button.kill()
     background = Background(all_sprites)
     menu_back = Menu(all_sprites)
     start_button = StartButton(all_sprites)
@@ -301,13 +386,15 @@ def init_main_menu():
 
 
 def init_options():
-    global defin_button1, defin_button2, back_button, img_resolution, is_options
+    global defin_button1, defin_button2, back_button, img_resolution, is_options, on_music_button, off_music_button, img_music
     start_button.kill()
     exit_button.kill()
     options_button.kill()
     defin_button1 = ResolutionButton1(all_sprites)
     defin_button2 = ResolutionButton2(all_sprites)
     back_button = BackButton(all_sprites)
+    on_music_button = OnMusicButton(all_sprites)
+    off_music_button = OffMusicButton(all_sprites)
     is_options = True
     with open('what_definition.txt', mode='r', encoding='utf-8') as file:
         if file.read() == '1920':
@@ -316,6 +403,7 @@ def init_options():
             k = 1.4055636896
         font = pygame.font.SysFont('candara', int(35 // k))
         img_resolution = font.render('Разрешение:', True, (146, 107, 56))
+        img_music = font.render('Музыка:', True, (146, 107, 56))
 
 
 def init_editor():
@@ -390,7 +478,8 @@ def init_editor():
 
 defin_button1, defin_button2, back_button, editor_back, plus_button1, minus_button1 = None, None, None, None, None, None
 plus_button2, minus_button2, plus_button3, minus_button3 = None, None, None, None
-plus_button4, minus_button4, black_background, img_resolution = None, None, None, None
+plus_button4, minus_button4, black_background, img_resolution, on_music_button = None, None, None, None, None
+off_music_button, img_music = None, None
 
 all_sprites = pygame.sprite.Group()
 background = Background(all_sprites)
@@ -420,7 +509,9 @@ while running:
                     k = 1.4055636896
                 font = pygame.font.SysFont('candara', int(35 // k))
                 img_resolution = font.render('Разрешение:', True, (146, 107, 56))
+                img_music = font.render('Музыка:', True, (146, 107, 56))
             screen.blit(img_resolution, (width // 2.86995515695, height // 3.6))
+            screen.blit(img_music, (width // 2.86995515695, height // 2.66666666667))
         pygame.display.update()
         pygame.display.flip()
     clock.tick(fps)
