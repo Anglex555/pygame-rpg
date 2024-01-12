@@ -3,8 +3,11 @@ import sys
 import os
 import character_editor
 import sqlite3
+import start_screen
 from character_editor import PlusButton
 from character_editor import MinusButton
+
+start_screen.start_screen()
 
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
