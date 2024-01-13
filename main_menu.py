@@ -410,12 +410,15 @@ def init_options():
 
 
 def init_editor():
-    global editor_back, is_character_editor
+    global editor_back, is_character_editor, character_name_editor_back, enter_button, save_button
     start_button.kill()
     exit_button.kill()
     options_button.kill()
     menu_back.kill()
     editor_back = character_editor.EditorBack(width, height, all_sprites)
+    character_name_editor_back = character_editor.CharacterNameEditorBack(width, height, all_sprites)
+    enter_button = character_editor.EnterButton(width, height, all_sprites)
+    save_button = character_editor.SaveButton(width, height, all_sprites)
 
     connect = sqlite3.connect('game.db')
     cur = connect.cursor()
@@ -460,19 +463,23 @@ def init_editor():
         else:
             k = 1.4055636896
         character_editor.font1 = pygame.font.SysFont('candara', int(50 // k))
-        character_editor.font2 = pygame.font.SysFont('candara', int(35 // k))
+        character_editor.font2 = pygame.font.SysFont('candara', int(22 // k), True)
         character_editor.img1 = character_editor.font1.render('5', True, character_editor.font_color)
         character_editor.img2 = character_editor.font1.render('5', True, character_editor.font_color)
         character_editor.img3 = character_editor.font1.render('5', True, character_editor.font_color)
         character_editor.img4 = character_editor.font1.render('5', True, character_editor.font_color)
+        character_editor.line_text = character_editor.font1.render('______________',
+                                                                   True, 'black')
+        character_editor.name_text = character_editor.font2.render('',
+                                                                   True, character_editor.font_color)
 
     connect = sqlite3.connect('game.db')
     cur = connect.cursor()
 
     cur.execute('''
-        INSERT INTO characteristics (strength, endurance, iq, body_type)
-        VALUES (?, ?, ?, ?)
-    ''', (5, 5, 5, 5))
+        INSERT INTO characteristics (strength, endurance, iq, body_type, name)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (5, 5, 5, 5, ''))
 
     connect.commit()
     cur.close()
@@ -482,7 +489,7 @@ def init_editor():
 defin_button1, defin_button2, back_button, editor_back, plus_button1, minus_button1 = None, None, None, None, None, None
 plus_button2, minus_button2, plus_button3, minus_button3 = None, None, None, None
 plus_button4, minus_button4, black_background, img_resolution, on_music_button = None, None, None, None, None
-off_music_button, img_music = None, None
+off_music_button, img_music, character_name_editor_back, enter_button, save_button = None, None, None, None, None
 
 all_sprites = pygame.sprite.Group()
 background = Background(all_sprites)
@@ -504,6 +511,13 @@ while running:
             screen.blit(character_editor.img3, (width // 2.09378407852, height // 1.37931034483))
             screen.blit(character_editor.img4, (width // 1.9452887538, height // 1.26909518214))
             character_editor.hint_text_blit(width, height)
+            screen.blit(character_editor.line_text, (width // 11.2280701754, height // 3.85714285714))
+            if character_editor.is_enter:
+                if event.type == pygame.KEYDOWN:
+                    character_editor.change_name()
+                    character_editor.name_text = character_editor.font2.render(character_editor.name,
+                                                                               True, character_editor.font_color)
+            screen.blit(character_editor.name_text, (width // 11.2280701754, height // 3.49514563107))
         if is_options:
             with open('what_definition.txt', mode='r', encoding='utf-8') as file:
                 if file.read() == '1920':

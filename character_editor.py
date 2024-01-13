@@ -13,6 +13,7 @@ button_sound = pygame.mixer.Sound('sound_effects/button_click_3.mp3')
 button_track_sound = pygame.mixer.Sound('sound_effects/button_tracking_04.mp3')
 main_menu_music = pygame.mixer.Sound('music/main_menu_music.mp3')
 screen = pygame.display.set_mode((width, height))
+is_enter = False
 normal_alpha = 255
 hover_alpha = 215
 pressed_alpha = 150
@@ -22,20 +23,44 @@ font_color2 = (146, 107, 56)
 tokens = 20
 token = 5
 font1 = pygame.font.SysFont('candara', 50)
+font2 = pygame.font.SysFont('candara', 30, True)
 img1 = font1.render('5', True, font_color)
 img2 = font1.render('5', True, font_color)
 img3 = font1.render('5', True, font_color)
 img4 = font1.render('5', True, font_color)
 
+line_text = font1.render('________________________', True, 'black')
+name = ''
+name_text = font1.render('', True, font_color)
+
 characteristics = {'strength': img1, 'endurance': img2, 'iq': img3, 'body_type': img4}
+
+lower_letters_event = {
+    pygame.K_a: 'a', pygame.K_b: 'b', pygame.K_c: 'c', pygame.K_d: 'd', pygame.K_e: 'e',
+    pygame.K_f: 'f', pygame.K_g: 'g', pygame.K_h: 'h', pygame.K_i: 'i', pygame.K_j: 'j',
+    pygame.K_k: 'k', pygame.K_l: 'l', pygame.K_m: 'm', pygame.K_n: 'n', pygame.K_o: 'o',
+    pygame.K_p: 'p', pygame.K_q: 'q', pygame.K_r: 'r', pygame.K_s: 's', pygame.K_t: 't',
+    pygame.K_u: 'u', pygame.K_v: 'v', pygame.K_w: 'w', pygame.K_x: 'x', pygame.K_y: 'y',
+    pygame.K_z: 'z',
+}
+
+upper_letters_event = {
+    pygame.K_a: 'A', pygame.K_b: 'B', pygame.K_c: 'C', pygame.K_d: 'D', pygame.K_e: 'E',
+    pygame.K_f: 'F', pygame.K_g: 'G', pygame.K_h: 'H', pygame.K_i: 'I', pygame.K_j: 'J',
+    pygame.K_k: 'K', pygame.K_l: 'L', pygame.K_m: 'M', pygame.K_n: 'N', pygame.K_o: 'O',
+    pygame.K_p: 'P', pygame.K_q: 'Q', pygame.K_r: 'R', pygame.K_s: 'S', pygame.K_t: 'T',
+    pygame.K_u: 'U', pygame.K_v: 'V', pygame.K_w: 'W', pygame.K_x: 'X', pygame.K_y: 'Y',
+    pygame.K_z: 'Z',
+}
 
 
 def hint_text_blit(width, height):
     hint_text = [
-        'У вас есть 4 токена, 1 токен равня-',
+        'У вас есть 4 токена, 1 токен равня',
         'ется 5. Распределите все токены',
         'по характеристикам. Также дайте',
-        'своему персонажу имя.'
+        'своему персонажу имя, Не превы',
+        'шающее n символов.'
     ]
 
     with open('what_definition.txt', mode='r', encoding='utf-8') as file:
@@ -108,8 +133,22 @@ def change_characteristics(symbol, parameter, character_id):
     connect.close()
 
 
+def change_name():
+    keys = pygame.key.get_pressed()
+    global name
+    for i in upper_letters_event.keys():
+        if keys[pygame.K_LSHIFT] and keys[i]:
+            name += upper_letters_event[i] if len(name) < 30 else ''
+            break
+        elif keys[i]:
+            name += lower_letters_event[i] if len(name) < 30 else ''
+            break
+    if keys[pygame.K_BACKSPACE]:
+        name = name[:-1]
+
+
 class BlackBackground(pygame.sprite.Sprite):
-    image_black_background = pygame.Surface([719, 230])
+    image_black_background = pygame.Surface([719, 276])
     image_black_background.fill(pygame.Color("black"))
 
     def __init__(self, width, height, *group):
@@ -222,7 +261,7 @@ class ContinueButton(pygame.sprite.Sprite):
         self.is_mouse_track = False
 
     def update(self, *args):
-        if tokens == 0:
+        if tokens == 0 and name != '':
             self.image.set_alpha(normal_alpha)
         else:
             self.image.set_alpha(disabled_alpha)
@@ -243,4 +282,100 @@ class ContinueButton(pygame.sprite.Sprite):
                     not self.rect.collidepoint(args[0].pos):
                 self.is_mouse_track = False
                 self.image.set_alpha(normal_alpha)
+
+
+class CharacterNameEditorBack(pygame.sprite.Sprite):
+    image_character_name_back = load_image('pics/character_name_back2.png')
+
+    def __init__(self, width, height, *group):
+        super().__init__(*group)
+        image_width = round(CharacterNameEditorBack.image_character_name_back.get_width() / (2560 / width))
+        image_height = round(CharacterNameEditorBack.image_character_name_back.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(CharacterNameEditorBack.image_character_name_back,
+                                            (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x = width // 19.2
+        self.rect.y = height // 18
+
+
+class EnterButton(pygame.sprite.Sprite):
+    image_enter_button = load_image('pics/enter_button2.png')
+
+    def __init__(self, width, height, *group):
+        super().__init__(*group)
+        image_width = round(EnterButton.image_enter_button.get_width() / (2560 / width))
+        image_height = round(EnterButton.image_enter_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(EnterButton.image_enter_button,
+                                            (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x = width // 9.6
+        self.rect.y = height // 3.08571428571
+        self.is_mouse_track = False
+
+    def update(self, *args):
+        global is_enter
+        if args and args[0].type == pygame.MOUSEMOTION and \
+                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
+            self.image.set_alpha(hover_alpha)
+            button_track_sound.play()
+            self.is_mouse_track = True
+        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
+                self.rect.collidepoint(args[0].pos):
+            self.image.set_alpha(pressed_alpha)
+            button_sound.play()
+            is_enter = True
+        if args and args[0].type == pygame.MOUSEBUTTONUP and \
+                self.rect.collidepoint(args[0].pos):
+            self.image.set_alpha(hover_alpha)
+        elif args and args[0].type == pygame.MOUSEMOTION and \
+                not self.rect.collidepoint(args[0].pos):
+            self.is_mouse_track = False
+            self.image.set_alpha(normal_alpha)
+
+
+class SaveButton(pygame.sprite.Sprite):
+    image_save_button = load_image('pics/save_button2.png')
+
+    def __init__(self, width, height, *group):
+        super().__init__(*group)
+        image_width = round(SaveButton.image_save_button.get_width() / (2560 / width))
+        image_height = round(SaveButton.image_save_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(SaveButton.image_save_button,
+                                            (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x = width // 5.40845070423
+        self.rect.y = height // 3.08571428571
+        self.is_mouse_track = False
+
+    def update(self, *args):
+        global is_enter
+        if args and args[0].type == pygame.MOUSEMOTION and \
+                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
+            self.image.set_alpha(hover_alpha)
+            button_track_sound.play()
+            self.is_mouse_track = True
+        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
+                self.rect.collidepoint(args[0].pos):
+            self.image.set_alpha(pressed_alpha)
+            button_sound.play()
+            is_enter = False
+            connection = sqlite3.connect('game.db')
+            cur = connection.cursor()
+            cur.execute('''
+                UPDATE characteristics
+                SET name = ?
+                WHERE id = (SELECT MAX(id) FROM characteristics)
+            ''', (name,))
+
+            connection.commit()
+            cur.close()
+            connection.close()
+
+        if args and args[0].type == pygame.MOUSEBUTTONUP and \
+                self.rect.collidepoint(args[0].pos):
+            self.image.set_alpha(hover_alpha)
+        elif args and args[0].type == pygame.MOUSEMOTION and \
+                not self.rect.collidepoint(args[0].pos):
+            self.is_mouse_track = False
+            self.image.set_alpha(normal_alpha)
 
