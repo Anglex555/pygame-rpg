@@ -514,7 +514,10 @@ while running:
             screen.blit(character_editor.line_text, (width // 11.2280701754, height // 3.85714285714))
             if character_editor.is_enter:
                 if event.type == pygame.KEYDOWN:
-                    character_editor.change_name()
+                    if event.key == pygame.K_BACKSPACE:
+                        character_editor.name = character_editor.name[:-1]
+                    else:
+                        character_editor.name += event.unicode if len(character_editor.name) <= 30 else 'f'
                     character_editor.name_text = character_editor.font2.render(character_editor.name,
                                                                                True, character_editor.font_color)
             screen.blit(character_editor.name_text, (width // 11.2280701754, height // 3.49514563107))

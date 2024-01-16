@@ -133,20 +133,6 @@ def change_characteristics(symbol, parameter, character_id):
     connect.close()
 
 
-def change_name():
-    keys = pygame.key.get_pressed()
-    global name
-    for i in upper_letters_event.keys():
-        if keys[pygame.K_LSHIFT] and keys[i]:
-            name += upper_letters_event[i] if len(name) < 30 else ''
-            break
-        elif keys[i]:
-            name += lower_letters_event[i] if len(name) < 30 else ''
-            break
-    if keys[pygame.K_BACKSPACE]:
-        name = name[:-1]
-
-
 class BlackBackground(pygame.sprite.Sprite):
     image_black_background = pygame.Surface([719, 276])
     image_black_background.fill(pygame.Color("black"))
@@ -261,7 +247,7 @@ class ContinueButton(pygame.sprite.Sprite):
         self.is_mouse_track = False
 
     def update(self, *args):
-        if tokens == 0 and name != '':
+        if tokens == 0 and is_enter is False and name != '':
             self.image.set_alpha(normal_alpha)
         else:
             self.image.set_alpha(disabled_alpha)
