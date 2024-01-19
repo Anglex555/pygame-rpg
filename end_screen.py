@@ -5,7 +5,9 @@ pygame.init()
 with open('what_definition.txt', mode='r', encoding='utf-8') as file:
     width = int(file.read())
     height = (width // 16) * 9
+running = True
 screen = pygame.display.set_mode((width, height))
+screen.fill('black')
 fps = 100
 clock = pygame.time.Clock()
 
@@ -20,10 +22,6 @@ def end_screen():
 
     background = pygame.Surface([1920, 1080])
     background.fill(pygame.Color("black"))
-    background_width = round(background.get_width() / (2560 / width))
-    background_height = round(background.get_height() / (2560 / width))
-    background = pygame.transform.scale(background,
-                                        (background_width, background_height))
     screen.blit(background, (0, 0))
 
     if width == 1920:
@@ -40,9 +38,9 @@ def end_screen():
             'Александр Англичанинов',
             'Никита Анхимов',
             'Иван Седов',
-            'Открытый мир -  Александр Англичанинов'
-            'Город - Иван Седов'
-            'Начальный и конечный экраны и главное меню - Никита Анхимов'
+            'Открытый мир -  Александр Англичанинов',
+            'Город - Иван Седов',
+            'Начальный и конечный экраны и главное меню - Никита Анхимов',
         ]
         text_coord = y - 7
         for line in titles:
@@ -60,11 +58,9 @@ def end_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_x:
-                    return
         screen.blit(background, (0, 0))
         blit_text(y)
         y -= 1
         pygame.display.flip()
         clock.tick(fps)
+
