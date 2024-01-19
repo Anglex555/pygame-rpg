@@ -7,7 +7,7 @@ from house import House1
 from house import House2
 from tree import Oak
 from tree import Spruce
-from inventory import Inventory, InventoryItem
+from inventory import Inventory, InventoryItem, items_positions, cells
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
@@ -114,6 +114,7 @@ hero.camera_y = SCREEN_HEIGHT // 2 - hero.height // 2
 items.append(Item(140, 90, 60, 60, 'джем', os.path.join("data", "jam.png")))
 items.append(Item(140, 100, 60, 60, 'джем', os.path.join("data", "jam.png")))
 items.append(Item(160, 95, 60, 60, 'джем', os.path.join("data", "jam.png")))
+items.append(Item(160, 110, 60, 60, 'меч', os.path.join("pics", "sword.png")))
 
 for item in items:
     objects[item.x][item.y] = item
@@ -159,14 +160,21 @@ while True:
                         for i in hero.inventory:
                             if not i.inventory_position:
                                 inventory_item = InventoryItem(n, i.image, i.image_path, i.inventory_position,
-                                                               inventory_sprites)
-                                n += 1 if not i.inventory_position else 0
-                            else:
+                                                               i.unique_indx, inventory_sprites)
+                                n += 1
+                            elif i.inventory_position and i.inventory_position not in cells:
                                 inventory_item = InventoryItem(None, i.image, i.image_path, i.inventory_position,
                                                                inventory_sprites)
+                            else:
+                                inventory_item = InventoryItem(n, i.image, i.image_path, None,
+                                                               inventory_sprites)
+                                n += 1
                 is_inventory = True
             elif event.key == pygame.K_ESCAPE:
                 is_inventory = False
+                for i in inventory_sprites:
+                    i.kill()
+                print(items_positions)
             elif event.key == pygame.K_f:
                 for item in items:
                     item.rect.x = item.x * TILE_SIZE + scaled_offset_x 
@@ -268,5 +276,11 @@ while True:
     font = pygame.font.Font(None, 36)
     fps_text = font.render(f"FPS: {fps}", True, (255, 255, 255))
     screen.blit(fps_text, (10, 10))
+
+    if items_positions:
+        for i in hero.inventory:
+            for j in items_positions:
+                if i.unique_indx == j.unique_indx and items_positions[j] not in cells:
+                    i.inventory_position = items_positions[j]
 
     pygame.display.flip()
