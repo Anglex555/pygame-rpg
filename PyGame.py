@@ -1,5 +1,6 @@
 import pygame
 
+
 class Ball(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__(all_sprites)
@@ -22,6 +23,7 @@ class Ball(pygame.sprite.Sprite):
         if not pygame.sprite.spritecollideany(self, vertical_borders):
             self.rect = self.rect.move(0, 1)
 
+
 class Ladder(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__(all_sprites)
@@ -30,6 +32,7 @@ class Ladder(pygame.sprite.Sprite):
         self.image.fill((255, 0, 0))
         self.rect = pygame.Rect(x, y, 10, 50)
 
+
 class Border(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__(all_sprites)
@@ -37,6 +40,7 @@ class Border(pygame.sprite.Sprite):
         self.image = pygame.Surface([50, 10])
         self.image.fill((125, 125, 125))
         self.rect = pygame.Rect(x, y, 50, 10)
+
 
 if __name__ == '__main__':
     pygame.init()

@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 
+
 class Hero:
     def __init__(self, x, y, width, height, speed):
         self.x = x
@@ -86,11 +87,13 @@ class Hero:
             self.rect.y = self.camera_y
         self.update_cooldown()
             
+
     def check_collision(self, objects, temp_rect):
         for object in objects:
             if object and temp_rect.colliderect(object.rect):
-                return True  # Коллизия обнаружена
-        return False  # Нет коллизии
+                return True
+        return False 
+
 
     def load_images(self):
         self.run_images = {"up": [], "down": [], "left": [], "right": []}
@@ -147,41 +150,36 @@ class Hero:
 
     def animate(self, keys, in_water):
         print(self.attack_frame)
-        if self.attack_frame == -1:  # Assuming each frame takes 0.1 seconds
+        if self.attack_frame == -1:
             self.is_attack = False
             self.attack_frame = 0
-            # Возвращаем изображение атаки только если не завершилась анимация атаки
         if self.is_attack:
             if self.attack_type == 1:
                 self.attack_frame = (self.attack_frame + 1) % len(self.attack_images[self.direction])
-                if self.attack_frame + 1 == len(self.attack_images[self.direction]):  # Assuming each frame takes 0.1 seconds
+                if self.attack_frame + 1 == len(self.attack_images[self.direction]): 
                     self.attack_frame = -1
                     return self.attack_images[self.direction][5]
                 else:
                     return self.attack_images[self.direction][self.attack_frame]
             elif self.attack_type == 2:
                 self.attack_frame = (self.attack_frame + 1) % len(self.attack_fire_images[self.direction])
-                if self.attack_frame + 1 == len(self.attack_fire_images[self.direction]):  # Assuming each frame takes 0.1 seconds
+                if self.attack_frame + 1 == len(self.attack_fire_images[self.direction]):
                     self.attack_frame = -1
                     return self.attack_fire_images[self.direction][5]
                 else:
                     return self.attack_fire_images[self.direction][self.attack_frame]
         if not any((keys[pygame.K_w], keys[pygame.K_a], keys[pygame.K_s], keys[pygame.K_d])):
             if in_water:
-                # Animate idle in water
                 self.idle_frame = (self.idle_frame + 1) % len(self.idle_swim_images[self.direction])
                 return self.idle_swim_images[self.direction][self.idle_frame]
             else:
-                # Animate regular idle
                 self.idle_frame = (self.idle_frame + 1) % len(self.idle_images[self.direction])
                 return self.idle_images[self.direction][self.idle_frame]
         else:
             if in_water:
-                # Animate swimming
                 self.swim_frame = (self.swim_frame + 1) % len(self.swim_images[self.direction])
                 return self.swim_images[self.direction][self.swim_frame]
             else:
-                # Animate running
                 self.run_frame = (self.run_frame + 1) % len(self.run_images[self.direction])
                 return self.run_images[self.direction][self.run_frame]
 
@@ -213,15 +211,17 @@ class Hero:
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
 
+
     def pick_up_item(self, item):
         self.inventory.append(item)
         print(self.inventory)
 
+
     def drop_item(self):
-        # Пример: выбрасываем последний предмет из инвентаря
         if self.inventory:
             item_to_drop = self.inventory.pop()
             print(f"Dropped item at ({item_to_drop.x}, {item_to_drop.y})")
+
 
     def add_exp(self, exp):
         self.exp += exp
@@ -229,13 +229,10 @@ class Hero:
         if self.exp >= self.exp_levelup:
             self.level_up()
 
+
     def level_up(self):
         self.lvl += 1
-        print(f"Level up! You are now level {self.lvl}.")
+        print(f"Level up! {self.lvl}.")
         self.exp -= self.exp_levelup
 
-        # Adjust stats or add other level-up mechanics as needed
-        # For example, you might want to increase max health and mana, reset current health and mana, etc.
-
-        # Increase experience needed for the next level
         self.exp_levelup = int(self.exp_levelup * 1.5)

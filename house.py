@@ -1,6 +1,7 @@
 import pygame
 import os
 
+
 class House:
     def __init__(self, x, y, width, height, image_filename):
         self.x = x
@@ -21,12 +22,14 @@ class House1(House):
     def update_rect(self, x, y):
         self.rect = pygame.Rect(x + 80, y + 250, self.width - 160, self.height - 450)
 
+
 class House2(House):
     def __init__(self, x, y):
         super().__init__(x, y, 600, 600, "house2.png")
 
     def update_rect(self, x, y):
         self.rect = pygame.Rect(x + 80, y + 250, self.width - 160, self.height - 450)
+
 
 class House3(House):
     def __init__(self, x, y):
@@ -35,6 +38,7 @@ class House3(House):
     def update_rect(self, x, y):
         self.rect = pygame.Rect(x + 80, y + 250, self.width - 160, self.height - 450)
 
+
 class House4(House):
     def __init__(self, x, y):
         super().__init__(x, y, 935, 725, "house4.png")
@@ -42,12 +46,14 @@ class House4(House):
     def update_rect(self, x, y):
         self.rect = pygame.Rect(x + 80, y + 250, self.width - 160, self.height - 450)
 
+
 class House5(House):
     def __init__(self, x, y):
         super().__init__(x, y, 890, 590, "house5.png")
 
     def update_rect(self, x, y):
         self.rect = pygame.Rect(x + 80, y + 250, self.width - 160, self.height - 450)
+
 
 class House6(House):
     def __init__(self, x, y):

@@ -18,7 +18,7 @@ def terminate():
 def start_screen():
     pygame.init()
 
-    background = pygame.image.load('pics/rpg_background_start_screen3.png') 
+    background = pygame.image.load('pics/rpg_background_start_screen3.png')
     background_width = round(background.get_width() / (2560 / width))
     background_height = round(background.get_height() / (2560 / width))
     background = pygame.transform.scale(background,

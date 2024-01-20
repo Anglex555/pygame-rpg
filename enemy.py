@@ -3,6 +3,7 @@ import os
 import random
 import time
 
+
 class Enemy:
     def __init__(self, x, y, width, height, max_hp, damage, speed, exp_reward):
         self.x = x
@@ -27,6 +28,7 @@ class Enemy:
         self.death_frame = 0
         self.death_animation_time = 0
 
+
     def load_images(self, enemy_type):
         self.move_images = {"up": [], "down": [], "left": [], "right": []}
         self.idle_images = {"up": [], "down": [], "left": [], "right": []}
@@ -38,7 +40,6 @@ class Enemy:
                 image_path = os.path.join("data", f"{enemy_type}_move_{direction}_{i}.png")
                 image = pygame.transform.scale(pygame.image.load(image_path), (self.width, self.height))
                 self.move_images[direction].append(image)
-
         for direction in ["up", "down", "left", "right"]:
             for i in range(1, 5):
                 image_path = os.path.join("data", f"{enemy_type}_attack_{i}.png")
@@ -56,9 +57,9 @@ class Enemy:
                 image_path = os.path.join("data", f"{enemy_type}_death_{i}.png")
                 image = pygame.transform.scale(pygame.image.load(image_path), (self.width, self.height))
                 self.death_images[direction].append(image)
-        
+    
     def animate_idle(self):
-        if not self.idle_images[self.direction]:  # Проверка на нулевую длину
+        if not self.idle_images[self.direction]:
             return None
 
         self.idle_frame = (self.idle_frame + 1) % len(self.idle_images[self.direction])
@@ -69,24 +70,19 @@ class Enemy:
         self.move_frame = (self.move_frame + 1) % len(self.move_images[self.direction])
         return self.move_images[self.direction][self.move_frame]
 
+
     def animate_attack(self):
         self.attack_frame = (self.attack_frame + 1) % len(self.attack_images[self.direction])
         return self.attack_images[self.direction][self.attack_frame]
 
-    def move(self, player_x, player_y):
-        # Логика движения противника, например, к движению в сторону игрока
-        pass
 
     def get_damage(self, damage_amount):
         if not self.is_dead:
             self.is_damage = True
-            # Reduce HP
             self.hp -= damage_amount
 
-            # Set a flag for damage animation
             self.damage_animation_time = time.time()
 
-            # Check for death
             if self.hp <= 0:
                 self.hp = 0
                 self.is_dead = True
@@ -95,30 +91,28 @@ class Enemy:
 
     def animate_damage(self):
         elapsed_time = time.time() - self.damage_animation_time
-        # Check if damage animation is still within the valid frames
-        if elapsed_time < 0.2:  # Assuming each frame takes 0.1 seconds
-            # Alternate between original and reddish image
+        if elapsed_time < 0.2:
             return (
                 self.idle_images[self.direction][self.idle_frame]
                 if int(elapsed_time / 0.1) % 2 == 0
                 else self.get_reddish_image()
             )
         else:
-            # Damage animation has completed
-            self.is_damage = False  # Set is_damage to False
+            self.is_damage = False
             return (
                 self.idle_images[self.direction][self.idle_frame]
                 if int(elapsed_time / 0.1) % 2 == 0
                 else self.get_reddish_image()
             )
 
+
     def get_reddish_image(self):
-        # Create a reddish version of the image
         reddish_image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         pygame.draw.rect(reddish_image, (255, 0, 0, 128), reddish_image.get_rect())
         original_image = self.idle_images[self.direction][self.idle_frame]
         reddish_image.blit(original_image, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         return reddish_image
+
 
     def animate_death(self):
         elapsed_time = time.time() - self.death_animation_time
@@ -128,9 +122,11 @@ class Enemy:
         else:
             return -1
         
+
     def update_rect(self, x, y):
         self.rect.topleft = (x, y)
     
+
     def render_hp_bar(self, x, y, screen):
         hp_bar_width = 60
         hp_bar_height = 6
@@ -140,15 +136,13 @@ class Enemy:
         hp_bar_rect = pygame.Rect(x + self.width // 2 - hp_bar_width // 2, y - 10, hp_bar_width, hp_bar_height)
         fill_rect = pygame.Rect(x + self.width // 2 - hp_bar_width // 2, y - 10, hp_bar_fill_width, hp_bar_height)
 
-        # Draw rounded corners
-        pygame.draw.rect(screen, (130, 87, 60), hp_bar_rect, border_radius=5, width=0)  # Brown border
-        pygame.draw.rect(screen, (130, 87, 60), fill_rect, border_radius=5, width=0)  # Brown border
+        pygame.draw.rect(screen, (130, 87, 60), hp_bar_rect, border_radius=5, width=0) 
+        pygame.draw.rect(screen, (130, 87, 60), fill_rect, border_radius=5, width=0) 
 
-        # Draw the empty HP bar with rounded corners
-        pygame.draw.rect(screen, (92, 10, 10), hp_bar_rect.inflate(-2, -2), border_radius=3, width=0)  # Red inside
+        pygame.draw.rect(screen, (92, 10, 10), hp_bar_rect.inflate(-2, -2), border_radius=3, width=0) 
 
-        # Draw the filled portion with rounded corners
-        pygame.draw.rect(screen, (217, 20, 20), fill_rect.inflate(-2, -2), border_radius=3, width=0)  # Green inside
+        pygame.draw.rect(screen, (217, 20, 20), fill_rect.inflate(-2, -2), border_radius=3, width=0) 
+
 
 class Slime(Enemy):
     def __init__(self, x, y, jump_delay=3, attack_cooldown=2):
@@ -162,6 +156,7 @@ class Slime(Enemy):
         self.attack_animation_time = 0
         self.load_images("slime")
 
+
     def jump_to_random_neighbor(self):
         neighbors = [
             (self.x - 1, self.y),  # Слева
@@ -171,9 +166,9 @@ class Slime(Enemy):
         ]
         new_x, new_y = random.choice(neighbors)
 
-        # Устанавливаем целевые координаты для линейной интерполяции
         self.target_x, self.target_y = new_x, new_y
         self.last_jump_time = time.time()
+
 
     def idle(self):
         self.is_move = False
@@ -182,25 +177,26 @@ class Slime(Enemy):
             self.is_move = True
             self.jump_to_random_neighbor()
 
+
     def move(self, player_x, player_y):
         distance_to_player = ((player_x - self.x) ** 2 + (player_y - self.y) ** 2) ** 0.5
-        if distance_to_player <= 10:
+        if distance_to_player <= 15:
             self.speed = 0.04
             self.is_move = True
-            # Устанавливаем целевые координаты для линейной интерполяции
             self.target_x, self.target_y = player_x, player_y
         else:
             self.speed = 0.1
             self.idle()
 
+
     def attack(self, player):
-        # Проверяем пересечение rect слайма и rect персонажа
         current_time = time.time()
         if current_time - self.last_attack_time >= self.attack_cooldown:
             self.is_attack = True
             player.hp -= self.damage
             self.last_attack_time = current_time
             self.attack_animation_time = current_time
+
 
     def load_images(self, enemy_type):
         self.move_images = {"up": [], "down": [], "left": [], "right": []}
@@ -232,13 +228,12 @@ class Slime(Enemy):
                 image = pygame.transform.scale(pygame.image.load(image_path), (self.width, self.height))
                 self.death_images[direction].append(image)
 
+
     def animate(self):
-        # Линейная интерполяция текущих координат к целевым координатам
-        lerp_speed = self.speed  # Регулирует скорость линейной интерполяции
+        lerp_speed = self.speed 
         self.x = (1 - lerp_speed) * self.x + lerp_speed * self.target_x
         self.y = (1 - lerp_speed) * self.y + lerp_speed * self.target_y
 
-        # Анимация основывается на направлении движения
         if self.x < self.target_x:
             self.direction = "right"
         elif self.x > self.target_x:
@@ -248,7 +243,6 @@ class Slime(Enemy):
         elif self.y > self.target_y:
             self.direction = "up"
 
-        # Проигрываем анимацию в зависимости от состояния
         if not self.idle_images[self.direction]:
             return None
         
@@ -262,12 +256,10 @@ class Slime(Enemy):
             return damaged_image
         if self.is_attack:
             elapsed_time = time.time() - self.attack_animation_time
-            # Check if attack animation is still within the valid frames
-            if elapsed_time < len(self.attack_images[self.direction]) * 0.1:  # Assuming each frame takes 0.1 seconds
-                self.attack_frame = int(elapsed_time / 0.1)  # Calculate the current frame
+            if elapsed_time < len(self.attack_images[self.direction]) * 0.1:  
+                self.attack_frame = int(elapsed_time / 0.1)  
                 return self.attack_images[self.direction][self.attack_frame]
             else:
-                # Attack animation has completed
                 self.is_attack = False
         if self.is_move:
             self.move_frame = (self.move_frame + 1) % len(self.move_images[self.direction])

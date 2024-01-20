@@ -9,9 +9,9 @@ def image_to_matrix(image_path):
         row = []
         for x in range(width):
             pixel = image.getpixel((x, y))
-            if pixel == (156, 90, 60, 255):  # Deep water
+            if pixel == (252, 0, 38, 255):  # Deep water
                 row.append(1)
-            if pixel == (61, 156, 65, 255):  # Deep water
+            if pixel == (125, 0, 19, 255):  # Deep water
                 row.append(2)
             if pixel == (0, 162, 232, 255):  # Deep water
                 row.append(3)
