@@ -18,14 +18,6 @@ def terminate():
 def end_screen():
     pygame.init()
 
-    background = pygame.Surface([1920, 1080])
-    background.fill(pygame.Color("black"))
-    background_width = round(background.get_width() / (2560 / width))
-    background_height = round(background.get_height() / (2560 / width))
-    background = pygame.transform.scale(background,
-                                        (background_width, background_height))
-    screen.blit(background, (0, 0))
-
     if width == 1920:
         k = 1
         y = 1080
@@ -34,15 +26,28 @@ def end_screen():
         y = 768
     font1 = pygame.font.SysFont('candara', int(35 // k), True)
 
+    background = pygame.Surface([1920 // k, 1080 // k])
+    background.fill(pygame.Color("black"))
+    screen.blit(background, (0, 0))
+
     def blit_text(y):
         titles = [
             'Создатели:',
             'Александр Англичанинов',
             'Никита Анхимов',
             'Иван Седов',
-            'Открытый мир -  Александр Англичанинов'
-            'Город - Иван Седов'
-            'Начальный и конечный экраны и главное меню - Никита Анхимов'
+            '',
+            'Открытый мир - Александр Англичанинов',
+            'Механика распределения жителей в городе - Иван Седов',
+            'Механика добычи ресурсов в городе - Иван Седов',
+            'Механика увеличения уровня города - Иван Седов',
+            'Механика улучшения харакетеристик персонажа - Иван Седов',
+            'Начальный и конечный экраны - Никита Анхимов',
+            'Главное меню - Никита Анхимов',
+            'Редактор персонажа - Никита Анхимов',
+            'Настройки - Никита Анхимов',
+            'Арт-дизайнер - Александр Англичанинов',
+            'Создание мира - Александр Англичанинов',
         ]
         text_coord = y - 7
         for line in titles:
@@ -55,14 +60,11 @@ def end_screen():
             screen.blit(string_rendered, intro_rect)
 
     while True:
-        if y == -273:
+        if y == -500:
             return
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_x:
-                    return
         screen.blit(background, (0, 0))
         blit_text(y)
         y -= 1

@@ -23,7 +23,8 @@ from tree import MagicTree
 from tree import TropicalTree
 from enemy import Slime
 from interface import draw_interface
-from inventory import Inventory, InventoryItem
+from inventory import Inventory, InventoryItem, cells, items_positions
+from end_screen import end_screen
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
@@ -34,10 +35,12 @@ pygame.init()
 img = pygame.Surface([136, 272])
 img.fill('white')
 img.set_alpha(100)
-blackout = (pygame.Surface([1920, 1080]))
+with open('what_definition.txt', mode='r', encoding='utf-8') as file:
+    SCREEN_WIDTH = int(file.read())
+    SCREEN_HEIGHT = (SCREEN_WIDTH // 16) * 9
 
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
+blackout = (pygame.Surface([SCREEN_WIDTH, SCREEN_HEIGHT]))
+
 TILE_SIZE = 40  
 ORIGINAL_TILE_SIZE = 30
 
@@ -154,7 +157,7 @@ hero.prev_y = hero.y
 hero.camera_x = SCREEN_WIDTH // 2 - hero.width // 2
 hero.camera_y = SCREEN_HEIGHT // 2 - hero.height // 2
 
-FPS = 13
+FPS = 50
 
 inventory_sprites = pygame.sprite.Group()
 inventory_back = Inventory(inventory_sprites)
@@ -179,11 +182,29 @@ slime = Slime(462, 512)
 enemies[slime.x][slime.y] = slime
 monsters.append(enemies[slime.x][slime.y])
 
+items.append(Item(140, 90, 60, 60, 'джем', os.path.join("data", "jam.png")))
+items.append(Item(160, 100, 60, 60, 'меч', os.path.join("pics", "armor.png")))
+items.append(Item(140, 100, 60, 60, 'джем', os.path.join("data", "jam.png")))
+items.append(Item(160, 95, 60, 60, 'джем', os.path.join("data", "jam.png")))
+items.append(Item(160, 110, 60, 60, 'меч', os.path.join("pics", "sword.png")))
+items.append(Item(160, 90, 60, 60, 'артефакт1', os.path.join("pics", "artifact_ring1.png")))
+items.append(Item(140, 90, 60, 60, 'зелье_хп', os.path.join("pics", "potion_hp.png")))
+items.append(Item(140, 50, 60, 60, 'щит', os.path.join("pics", "shield.png")))
+items.append(Item(140, 30, 60, 60, 'шлем', os.path.join("pics", "helmet.png")))
+items.append(Item(140, 40, 60, 60, 'артефакт2', os.path.join("pics", "artifact_ring2.png")))
+
+for item in items:
+    objects[item.x][item.y] = item
+
+for item in items:
+    hero.pick_up_item(item)
+
 clock = pygame.time.Clock()
 while True:
     clock.tick(FPS)
     for event in pygame.event.get():
         if hero.hp <= 0:
+            end_screen()
             pygame.quit()
             sys.exit()
         if is_inventory:
@@ -205,14 +226,19 @@ while True:
                         for i in hero.inventory:
                             if not i.inventory_position:
                                 inventory_item = InventoryItem(n, i.image, i.image_path, i.inventory_position,
-                                                               inventory_sprites)
-                                n += 1 if not i.inventory_position else 0
+                                                               i.unique_indx, inventory_sprites)
+                                n += 1
                             else:
                                 inventory_item = InventoryItem(None, i.image, i.image_path, i.inventory_position,
-                                                               inventory_sprites)
+                                                               i.unique_indx, inventory_sprites)
                 is_inventory = True
             elif event.key == pygame.K_ESCAPE:
                 is_inventory = False
+                for i in inventory_sprites:
+                    if i != inventory_back:
+                        i.kill()
+                for i in items_positions.copy():
+                    del items_positions[i]
             elif event.key == pygame.K_f:
                 for item in items:
                     item.rect.x = item.x * TILE_SIZE + scaled_offset_x 
@@ -339,5 +365,13 @@ while True:
     
     hero.update_cooldown()
     draw_interface(screen, hero)
+
+    if items_positions:
+        for i in hero.inventory:
+            for j in items_positions:
+                if i.unique_indx == j.unique_indx and items_positions[j] not in cells:
+                    i.inventory_position = items_positions[j]
+                elif i.unique_indx == j.unique_indx and items_positions[j] in cells:
+                    i.inventory_position = None
 
     pygame.display.flip()
