@@ -73,14 +73,14 @@ class Background(pygame.sprite.Sprite):
         self.rect.y = 0
 
 
-class StartButton(pygame.sprite.Sprite):
-    image_play_button = load_image('pics/play_button.png')
+class NewGameButton(pygame.sprite.Sprite):
+    image_play_button = load_image('pics/new_game_button.png')
 
     def __init__(self, *group):
         super().__init__(*group)
-        image_width = round(StartButton.image_play_button.get_width() / (2560 / width))
-        image_height = round(StartButton.image_play_button.get_height() / (2560 / width))
-        self.image = pygame.transform.scale(StartButton.image_play_button,
+        image_width = round(NewGameButton.image_play_button.get_width() / (2560 / width))
+        image_height = round(NewGameButton.image_play_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(NewGameButton.image_play_button,
                                                                (image_width, image_height))
         self.rect = self.image.get_rect()
         self.rect.x = width // 2.72
@@ -107,6 +107,39 @@ class StartButton(pygame.sprite.Sprite):
             self.image.set_alpha(normal_alpha)
 
 
+class ContinueGameButton(pygame.sprite.Sprite):
+    image_continue_game_button = load_image('pics/continue_game_button.png')
+
+    def __init__(self, *group):
+        super().__init__(*group)
+        image_width = round(ContinueGameButton.image_continue_game_button.get_width() / (2560 / width))
+        image_height = round(ContinueGameButton.image_continue_game_button.get_height() / (2560 / width))
+        self.image = pygame.transform.scale(ContinueGameButton.image_continue_game_button,
+                                                               (image_width, image_height))
+        self.rect = self.image.get_rect()
+        self.rect.x = width // 2.72
+        self.rect.y = height // 2.7
+        self.is_mouse_track = False
+
+    def update(self, *args):
+        if args and args[0].type == pygame.MOUSEMOTION and \
+                self.rect.collidepoint(args[0].pos) and self.is_mouse_track is False:
+            self.image.set_alpha(hover_alpha)
+            button_track_sound.play()
+            self.is_mouse_track = True
+        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
+                self.rect.collidepoint(args[0].pos):
+            self.image.set_alpha(pressed_alpha)
+            button_sound.play()
+        if args and args[0].type == pygame.MOUSEBUTTONUP and \
+                self.rect.collidepoint(args[0].pos):
+            self.image.set_alpha(hover_alpha)
+        elif args and args[0].type == pygame.MOUSEMOTION and \
+                not self.rect.collidepoint(args[0].pos):
+            self.is_mouse_track = False
+            self.image.set_alpha(normal_alpha)
+
+
 class OptionsButton(pygame.sprite.Sprite):
     image_options_button = load_image('pics/options_button.png')
 
@@ -118,7 +151,7 @@ class OptionsButton(pygame.sprite.Sprite):
                                                                (image_width, image_height))
         self.rect = self.image.get_rect()
         self.rect.x = width // 2.72
-        self.rect.y = height // 2.7
+        self.rect.y = height // 2.16
         self.is_mouse_track = False
 
     def update(self, *args):
@@ -152,7 +185,7 @@ class ExitButton(pygame.sprite.Sprite):
                                                               (image_width, image_height))
         self.rect = self.image.get_rect()
         self.rect.x = width // 2.72
-        self.rect.y = height // 2.16
+        self.rect.y = height // 1.8
         self.is_mouse_track = False
 
     def update(self, *args):
@@ -373,8 +406,8 @@ def change_resolution(w, h):
 
 
 def init_main_menu():
-    global background, menu_back, start_button, exit_button, options_button, \
-        defin_button1, defin_button2, back_button, is_options, on_music_button, off_music_button
+    global background, menu_back, new_game_button, exit_button, options_button, \
+        defin_button1, defin_button2, back_button, is_options, on_music_button, off_music_button, continue_game_button
     defin_button1.kill()
     defin_button2.kill()
     back_button.kill()
@@ -382,7 +415,8 @@ def init_main_menu():
     off_music_button.kill()
     background = Background(all_sprites)
     menu_back = Menu(all_sprites)
-    start_button = StartButton(all_sprites)
+    new_game_button = NewGameButton(all_sprites)
+    continue_game_button = ContinueGameButton(all_sprites)
     exit_button = ExitButton(all_sprites)
     options_button = OptionsButton(all_sprites)
     is_options = False
@@ -390,7 +424,8 @@ def init_main_menu():
 
 def init_options():
     global defin_button1, defin_button2, back_button, img_resolution, is_options, on_music_button, off_music_button, img_music
-    start_button.kill()
+    new_game_button.kill()
+    continue_game_button.kill()
     exit_button.kill()
     options_button.kill()
     defin_button1 = ResolutionButton1(all_sprites)
@@ -411,7 +446,8 @@ def init_options():
 
 def init_editor():
     global editor_back, is_character_editor, character_name_editor_back, enter_button, save_button
-    start_button.kill()
+    new_game_button.kill()
+    continue_game_button.kill()
     exit_button.kill()
     options_button.kill()
     menu_back.kill()
@@ -494,7 +530,8 @@ off_music_button, img_music, character_name_editor_back, enter_button, save_butt
 all_sprites = pygame.sprite.Group()
 background = Background(all_sprites)
 menu_back = Menu(all_sprites)
-start_button = StartButton(all_sprites)
+new_game_button = NewGameButton(all_sprites)
+continue_game_button = ContinueGameButton(all_sprites)
 exit_button = ExitButton(all_sprites)
 options_button = OptionsButton(all_sprites)
 all_sprites.draw(screen)
