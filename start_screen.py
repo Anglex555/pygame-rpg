@@ -6,7 +6,7 @@ with open('what_definition.txt', mode='r', encoding='utf-8') as file:
     width = int(file.read())
     height = (width // 16) * 9
 screen = pygame.display.set_mode((width, height))
-fps = 100
+fps = 200
 clock = pygame.time.Clock()
 
 

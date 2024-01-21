@@ -28,6 +28,13 @@ armor_cell = (1495 // k, 535 // k)
 sword_cell = (1299 // k, 535 // k)
 shield_cell = (1690 // k, 535 // k)
 
+special_cells = {
+    artifact_cell1: 'artifact', artifact_cell2: 'artifact', helmet_cell: 'helmet',
+    armor_cell: 'armor', sword_cell: 'sword', shield_cell: 'shield'
+}
+
+long_cells = [armor_cell, sword_cell, shield_cell]
+
 
 items_positions = {}
 
@@ -66,6 +73,7 @@ class InventoryItem(pygame.sprite.Sprite):
         self.is_mouse_track = False
         self.is_holding = None
         self.cursor_pos = [0, 0]
+        self.n = 0
 
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEMOTION:
@@ -84,60 +92,208 @@ class InventoryItem(pygame.sprite.Sprite):
             self.cursor_pos[0] = args[0].pos[0] - self.rect.x
             self.cursor_pos[1] = args[0].pos[1] - self.rect.y
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
-                self.rect.collidepoint(args[0].pos):
+                self.rect.collidepoint(args[0].pos) and self.is_holding:
             is_in_cell = False
             for i in cells:
-                if (abs(i[0] - self.rect.x) <= 80 and abs(i[1] - self.rect.y) <= 80
-                        and i not in items_positions.values()):
-                    self.image = pygame.transform.scale(self.image, (136 // k, 136 // k))
-                    self.rect = self.image.get_rect()
-                    self.rect.x, self.rect.y = i[0], i[1]
-                    is_in_cell = True
-                    self.indx = cells.index(i)
-                    items_positions[self] = (i[0], i[1])
+                if abs(i[0] - self.rect.x) <= 80 and abs(i[1] - self.rect.y) <= 80:
+                    if i in items_positions.values():
+                        if items_positions[self] in cells:
+                            for j in items_positions:
+                                if items_positions[j] == i:
+                                    items_positions[self], items_positions[j]\
+                                        = items_positions[j], items_positions[self]
+                                    self.rect.x = items_positions[self][0]
+                                    self.rect.y = items_positions[self][1]
+                                    j.rect.x = items_positions[j][0]
+                                    j.rect.y = items_positions[j][1]
+                                    is_in_cell = True
+                                    self.indx = cells.index(items_positions[self])
+                                    j.indx = cells.index(i)
+                        else:
+                            for n in special_cells:
+                                if items_positions[self] == n:
+                                    for j in items_positions:
+                                        if items_positions[j] == i:
+                                            if special_cells[n] in j.image_path:
+                                                items_positions[self], items_positions[j]\
+                                                    = items_positions[j], items_positions[self]
+                                                if n in long_cells:
+                                                    self.image = pygame.transform.scale(self.image,
+                                                                                        (136 // k, 136 // k))
+                                                    self.rect = self.image.get_rect()
+                                                    j.image = pygame.transform.scale(j.image,
+                                                                                        (136 // k, 272 // k))
+                                                    j.rect = j.image.get_rect()
+                                                self.rect.x = items_positions[self][0]
+                                                self.rect.y = items_positions[self][1]
+                                                j.rect.x = items_positions[j][0]
+                                                j.rect.y = items_positions[j][1]
+                                                is_in_cell = True
+                                                self.indx = cells.index(items_positions[self])
+                                                j.indx = cells.index(i)
+                                                break
+                                if is_in_cell:
+                                    break
+                    if is_in_cell:
+                        break
+                    else:
+                        self.image = pygame.transform.scale(self.image, (136 // k, 136 // k))
+                        self.rect = self.image.get_rect()
+                        self.rect.x, self.rect.y = i[0], i[1]
+                        is_in_cell = True
+                        self.indx = cells.index(i)
+                        items_positions[self] = (i[0], i[1])
             if not is_in_cell:
                 if (abs(artifact_cell1[0] - self.rect.x) <= 80 and abs(artifact_cell1[1] - self.rect.y) <= 80
-                        and artifact_cell1 not in items_positions.values()) and 'artifact' in self.image_path:
-                    self.image = pygame.transform.scale(self.image, (136 // k, 136 // k))
-                    self.rect = self.image.get_rect()
-                    self.rect.x, self.rect.y = artifact_cell1[0], artifact_cell1[1]
-                    items_positions[self] = artifact_cell1
-                    is_in_cell = True
+                        and artifact_cell1 and 'artifact' in self.image_path):
+                    if artifact_cell1 in items_positions.values():
+                        if items_positions[self] in cells or items_positions[self] == artifact_cell2:
+                            for j in items_positions:
+                                if items_positions[j] == artifact_cell1:
+                                    items_positions[self], items_positions[j] \
+                                        = items_positions[j], items_positions[self]
+                                    self.rect.x = items_positions[self][0]
+                                    self.rect.y = items_positions[self][1]
+                                    j.rect.x = items_positions[j][0]
+                                    j.rect.y = items_positions[j][1]
+                                    is_in_cell = True
+                                    self.indx = None
+                                    j.indx = cells.index(items_positions[j]) if items_positions[self] in cells else None
+                                    break
+                    else:
+                        self.image = pygame.transform.scale(self.image, (136 // k, 136 // k))
+                        self.rect = self.image.get_rect()
+                        self.rect.x, self.rect.y = artifact_cell1[0], artifact_cell1[1]
+                        items_positions[self] = artifact_cell1
+                        is_in_cell = True
                 elif (abs(artifact_cell2[0] - self.rect.x) <= 80 and abs(artifact_cell2[1] - self.rect.y) <= 80
-                        and artifact_cell2 not in items_positions.values()) and 'artifact' in self.image_path:
-                    self.image = pygame.transform.scale(self.image, (136 // k, 136 // k))
-                    self.rect = self.image.get_rect()
-                    self.rect.x, self.rect.y = artifact_cell2[0], artifact_cell2[1]
-                    items_positions[self] = artifact_cell2
-                    is_in_cell = True
+                        and 'artifact' in self.image_path):
+                    if artifact_cell2 in items_positions.values():
+                        if items_positions[self] in cells or items_positions[self] == artifact_cell1:
+                            for j in items_positions:
+                                if items_positions[j] == artifact_cell2:
+                                    items_positions[self], items_positions[j] \
+                                        = items_positions[j], items_positions[self]
+                                    self.rect.x = items_positions[self][0]
+                                    self.rect.y = items_positions[self][1]
+                                    j.rect.x = items_positions[j][0]
+                                    j.rect.y = items_positions[j][1]
+                                    is_in_cell = True
+                                    self.indx = None
+                                    j.indx = cells.index(items_positions[j]) if items_positions[self] in cells else None
+                                    break
+                    else:
+                        self.image = pygame.transform.scale(self.image, (136 // k, 136 // k))
+                        self.rect = self.image.get_rect()
+                        self.rect.x, self.rect.y = artifact_cell2[0], artifact_cell2[1]
+                        items_positions[self] = artifact_cell2
+                        is_in_cell = True
                 elif (abs(helmet_cell[0] - self.rect.x) <= 80 and abs(helmet_cell[1] - self.rect.y) <= 80
-                        and helmet_cell not in items_positions.values()) and 'helmet' in self.image_path:
-                    self.image = pygame.transform.scale(self.image, (136 // k, 136 // k))
-                    self.rect = self.image.get_rect()
-                    self.rect.x, self.rect.y = helmet_cell[0], helmet_cell[1]
-                    items_positions[self] = helmet_cell
-                    is_in_cell = True
+                        and 'helmet' in self.image_path):
+                    if helmet_cell in items_positions.values():
+                        if items_positions[self] in cells:
+                            for j in items_positions:
+                                if items_positions[j] == helmet_cell:
+                                    items_positions[self], items_positions[j] \
+                                        = items_positions[j], items_positions[self]
+                                    self.rect.x = items_positions[self][0]
+                                    self.rect.y = items_positions[self][1]
+                                    j.rect.x = items_positions[j][0]
+                                    j.rect.y = items_positions[j][1]
+                                    is_in_cell = True
+                                    self.indx = None
+                                    j.indx = cells.index(items_positions[j])
+                                    break
+                    else:
+                        self.image = pygame.transform.scale(self.image, (136 // k, 136 // k))
+                        self.rect = self.image.get_rect()
+                        self.rect.x, self.rect.y = helmet_cell[0], helmet_cell[1]
+                        items_positions[self] = helmet_cell
+                        is_in_cell = True
                 elif (abs(armor_cell[0] - self.rect.x) <= 80 and abs(armor_cell[1] - self.rect.y) <= 110
-                        and armor_cell not in items_positions.values()) and 'armor' in self.image_path:
-                    self.image = pygame.transform.scale(self.image, (136 // k, 272 // k))
-                    self.rect = self.image.get_rect()
-                    self.rect.x, self.rect.y = armor_cell[0], armor_cell[1]
-                    items_positions[self] = armor_cell
-                    is_in_cell = True
+                        and 'armor' in self.image_path):
+                    if armor_cell in items_positions.values():
+                        if items_positions[self] in cells:
+                            for j in items_positions:
+                                if items_positions[j] == armor_cell:
+                                    items_positions[self], items_positions[j] \
+                                        = items_positions[j], items_positions[self]
+                                    self.image = pygame.transform.scale(self.image,
+                                                                        (136 // k, 272 // k))
+                                    self.rect = self.image.get_rect()
+                                    j.image = pygame.transform.scale(j.image,
+                                                                     (136 // k, 136 // k))
+                                    j.rect = j.image.get_rect()
+                                    self.rect.x = items_positions[self][0]
+                                    self.rect.y = items_positions[self][1]
+                                    j.rect.x = items_positions[j][0]
+                                    j.rect.y = items_positions[j][1]
+                                    is_in_cell = True
+                                    self.indx = None
+                                    j.indx = cells.index(items_positions[j])
+                                    break
+                    else:
+                        self.image = pygame.transform.scale(self.image, (136 // k, 272 // k))
+                        self.rect = self.image.get_rect()
+                        self.rect.x, self.rect.y = armor_cell[0], armor_cell[1]
+                        items_positions[self] = armor_cell
+                        is_in_cell = True
                 elif (abs(sword_cell[0] - self.rect.x) <= 80 and abs(sword_cell[1] - self.rect.y) <= 110
-                        and sword_cell not in items_positions.values()) and 'sword' in self.image_path:
-                    self.image = pygame.transform.scale(self.image, (136 // k, 272 // k))
-                    self.rect = self.image.get_rect()
-                    self.rect.x, self.rect.y = sword_cell[0], sword_cell[1]
-                    items_positions[self] = sword_cell
-                    is_in_cell = True
+                        and 'sword' in self.image_path):
+                    if sword_cell in items_positions.values():
+                        if items_positions[self] in cells:
+                            for j in items_positions:
+                                if items_positions[j] == sword_cell:
+                                    items_positions[self], items_positions[j] \
+                                        = items_positions[j], items_positions[self]
+                                    self.image = pygame.transform.scale(self.image,
+                                                                        (136 // k, 272 // k))
+                                    self.rect = self.image.get_rect()
+                                    j.image = pygame.transform.scale(j.image,
+                                                                     (136 // k, 136 // k))
+                                    j.rect = j.image.get_rect()
+                                    self.rect.x = items_positions[self][0]
+                                    self.rect.y = items_positions[self][1]
+                                    j.rect.x = items_positions[j][0]
+                                    j.rect.y = items_positions[j][1]
+                                    is_in_cell = True
+                                    self.indx = None
+                                    j.indx = cells.index(items_positions[j])
+                                    break
+                    else:
+                        self.image = pygame.transform.scale(self.image, (136 // k, 272 // k))
+                        self.rect = self.image.get_rect()
+                        self.rect.x, self.rect.y = sword_cell[0], sword_cell[1]
+                        items_positions[self] = sword_cell
+                        is_in_cell = True
                 elif (abs(shield_cell[0] - self.rect.x) <= 80 and abs(shield_cell[1] - self.rect.y) <= 110
-                        and shield_cell not in items_positions.values()) and 'shield' in self.image_path:
-                    self.image = pygame.transform.scale(self.image, (136 // k, 272 // k))
-                    self.rect = self.image.get_rect()
-                    self.rect.x, self.rect.y = shield_cell[0], shield_cell[1]
-                    items_positions[self] = shield_cell
-                    is_in_cell = True
+                        and 'shield' in self.image_path):
+                    if shield_cell in items_positions.values():
+                        if items_positions[self] in cells:
+                            for j in items_positions:
+                                if items_positions[j] == shield_cell:
+                                    items_positions[self], items_positions[j] \
+                                        = items_positions[j], items_positions[self]
+                                    self.image = pygame.transform.scale(self.image,
+                                                                        (136 // k, 272 // k))
+                                    self.rect = self.image.get_rect()
+                                    j.image = pygame.transform.scale(j.image,
+                                                                     (136 // k, 136 // k))
+                                    j.rect = j.image.get_rect()
+                                    self.rect.x = items_positions[self][0]
+                                    self.rect.y = items_positions[self][1]
+                                    j.rect.x = items_positions[j][0]
+                                    j.rect.y = items_positions[j][1]
+                                    is_in_cell = True
+                                    self.indx = None
+                                    j.indx = cells.index(items_positions[j])
+                                    break
+                    else:
+                        self.image = pygame.transform.scale(self.image, (136 // k, 272 // k))
+                        self.rect = self.image.get_rect()
+                        self.rect.x, self.rect.y = shield_cell[0], shield_cell[1]
+                        items_positions[self] = shield_cell
+                        is_in_cell = True
             if not is_in_cell:
                 self.rect.x, self.rect.y = items_positions[self][0], items_positions[self][1]
             self.image.set_alpha(200)
