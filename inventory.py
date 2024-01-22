@@ -130,12 +130,13 @@ class InventoryItem(pygame.sprite.Sprite):
             elif self.name == 'Джем':
                 self.hero.hp = self.hero.hp + 10 if self.hero.hp + 10 <= 100 else 100
                 is_used = True
-            self.kill()
-            for item in self.hero.inventory.copy():
-                if item.unique_indx == self.unique_indx:
-                    self.hero.inventory.remove(item)
-                    break
-            self.is_mouse_track = False
+            if is_used:
+                self.kill()
+                for item in self.hero.inventory.copy():
+                    if item.unique_indx == self.unique_indx:
+                        self.hero.inventory.remove(item)
+                        break
+                self.is_mouse_track = False
 
         if args and args[0].type == pygame.MOUSEBUTTONUP and args[0].button == 1 \
                 and self.rect.collidepoint(args[0].pos) and self.is_holding:
