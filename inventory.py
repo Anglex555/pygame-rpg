@@ -13,6 +13,30 @@ running = True
 
 k = 1 if width == 1920 else 1.4055636896
 
+
+def description_text_blit(x, y, text, name):
+    x = x // k
+    y = y // k
+    black_background = pygame.Surface((200 // k, (34 + 18 * len(text)) // k))
+    black_background.fill('black')
+    black_background.set_alpha(200)
+
+    font1 = pygame.font.SysFont('candara', int(16 // k), True)
+    font2 = pygame.font.SysFont('candara', int(20 // k), True)
+    text_coord = y + 25
+    screen.blit(black_background, (x - 5, y - 5))
+    name_text = font2.render(name, True, (6, 76, 249))
+    screen.blit(name_text, (x, y))
+    for line in text:
+        string_rendered = font1.render(line, True, (146, 107, 56))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 2
+        intro_rect.top = text_coord
+        intro_rect.x = x
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+
 cells = [(74 // k, 250 // k), (222 // k, 250 // k), (370 // k, 250 // k), (518 // k, 250 // k), (666 // k, 250 // k),
          (814 // k, 250 // k), (962 // k, 250 // k), (1110 // k, 250 // k), (74 // k, 399 // k),
          (222 // k, 399 // k), (370 // k, 399 // k), (518 // k, 399 // k), (666 // k, 399 // k), (814 // k, 399 // k),
@@ -52,8 +76,10 @@ class Inventory(pygame.sprite.Sprite):
 
 class InventoryItem(pygame.sprite.Sprite):
 
-    def __init__(self, indx, img, img_path, inv_pos, unique_indx, *group):
+    def __init__(self, indx, img, img_path, inv_pos, unique_indx, name, hero, *group):
         super().__init__(*group)
+        self.hero = hero
+        self.name = name
         self.unique_indx = unique_indx
         self.indx = indx
         if inv_pos in (armor_cell, sword_cell, shield_cell):
@@ -74,6 +100,7 @@ class InventoryItem(pygame.sprite.Sprite):
         self.is_holding = None
         self.cursor_pos = [0, 0]
         self.n = 0
+        self.last_mouse_pos = None
 
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEMOTION:
@@ -85,14 +112,33 @@ class InventoryItem(pygame.sprite.Sprite):
                 if self.rect.collidepoint(args[0].pos):
                     self.image.set_alpha(200)
                     self.is_mouse_track = True
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
+        if args and args[0].type == pygame.MOUSEBUTTONDOWN and args[0].button == 1 \
+                and self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(100)
             self.is_holding = True
             self.cursor_pos[0] = args[0].pos[0] - self.rect.x
             self.cursor_pos[1] = args[0].pos[1] - self.rect.y
-        if args and args[0].type == pygame.MOUSEBUTTONUP and \
-                self.rect.collidepoint(args[0].pos) and self.is_holding:
+        if args and args[0].type == pygame.MOUSEBUTTONDOWN and args[0].button == 3 \
+                and self.rect.collidepoint(args[0].pos) and not self.is_holding:
+            is_used = False
+            if self.name == 'Зелье_хп':
+                self.hero.hp = self.hero.hp + 25 if self.hero.hp + 25 <= 100 else 100
+                is_used = True
+            elif self.name == 'Зелье_мана':
+                self.hero.mana = self.hero.mana + 25 if self.hero.mana + 25 <= 100 else 100
+                is_used = True
+            elif self.name == 'Джем':
+                self.hero.hp = self.hero.hp + 10 if self.hero.hp + 10 <= 100 else 100
+                is_used = True
+            self.kill()
+            for item in self.hero.inventory.copy():
+                if item.unique_indx == self.unique_indx:
+                    self.hero.inventory.remove(item)
+                    break
+            self.is_mouse_track = False
+
+        if args and args[0].type == pygame.MOUSEBUTTONUP and args[0].button == 1 \
+                and self.rect.collidepoint(args[0].pos) and self.is_holding:
             is_in_cell = False
             for i in cells:
                 if abs(i[0] - self.rect.x) <= 80 and abs(i[1] - self.rect.y) <= 80:

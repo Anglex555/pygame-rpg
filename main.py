@@ -23,14 +23,29 @@ from tree import MagicTree
 from tree import TropicalTree
 from enemy import Slime
 from interface import draw_interface
-from inventory import Inventory, InventoryItem, cells, items_positions
+from inventory import Inventory, InventoryItem, cells, items_positions, description_text_blit
 from end_screen import end_screen
 
-print()
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 is_inventory = False
+
+sword_disc = ['Наносит урон врагам на', 'близких расстояниях']
+shield_disc = ['Защищает тело от физи-', 'ческого урона при ис-', 'пользовании']
+armor_disc = ['Защищает туловище от фи-', 'зического урона']
+jam_disc = ['Прибавляет [x] ед. здоро-', 'вья']
+helmet_disc = ['Защищает голову от фи-', 'зического урона']
+artifact1_disc = ['Прибавляет +5% к урону']
+artifact2_disc = ['Прибавляет +5% к защите']
+potion_hp_disc = ['Прибавляет 25 ед. здоровья', 'при использовании']
+potion_mana_disc = ['Прибавляет 25 ед. маны', 'при использовании']
+
+descriptions = {
+    'Меч': sword_disc, 'Щит': shield_disc, 'Броня': armor_disc, 'Джем': jam_disc,
+    'Шлем': helmet_disc, 'Артефакт1': artifact1_disc, 'Артефакт2': artifact2_disc,
+    'Зелье_хп': potion_hp_disc, 'Зелье_мана': potion_mana_disc
+}
 
 pygame.init()
 
@@ -184,20 +199,21 @@ slime = Slime(462, 512)
 enemies[slime.x][slime.y] = slime
 monsters.append(enemies[slime.x][slime.y])
 
-items.append(Item(140, 90, 60, 60, 'джем', os.path.join("data", "jam.png")))
-items.append(Item(160, 100, 60, 60, 'броня', os.path.join("pics", "armor.png")))
-items.append(Item(140, 100, 60, 60, 'джем', os.path.join("data", "jam.png")))
-items.append(Item(160, 95, 60, 60, 'джем', os.path.join("data", "jam.png")))
-items.append(Item(160, 110, 60, 60, 'меч', os.path.join("pics", "sword.png")))
-items.append(Item(160, 90, 60, 60, 'артефакт1', os.path.join("pics", "artifact_ring1.png")))
-items.append(Item(140, 90, 60, 60, 'зелье_хп', os.path.join("pics", "potion_hp.png")))
-items.append(Item(140, 30, 60, 60, 'шлем', os.path.join("pics", "helmet.png")))
-items.append(Item(140, 40, 60, 60, 'артефакт2', os.path.join("pics", "artifact_ring2.png")))
-items.append(Item(140, 10, 60, 60, 'щит2', os.path.join("pics", "shield.png")))
-items.append(Item(140, 50, 60, 60, 'щит', os.path.join("pics", "shield2.png")))
-items.append(Item(140, 140, 60, 60, 'броня2', os.path.join("pics", "armor2.png")))
-items.append(Item(50, 110, 60, 60, 'меч2', os.path.join("pics", "sword2.png")))
-items.append(Item(30, 30, 60, 60, 'шлем', os.path.join("pics", "helmet2.png")))
+items.append(Item(140, 90, 60, 60, 'Джем', os.path.join("data", "jam.png")))
+items.append(Item(160, 100, 60, 60, 'Броня', os.path.join("pics", "armor.png")))
+items.append(Item(140, 100, 60, 60, 'Джем', os.path.join("data", "jam.png")))
+items.append(Item(160, 95, 60, 60, 'Джем', os.path.join("data", "jam.png")))
+items.append(Item(160, 110, 60, 60, 'Меч', os.path.join("pics", "sword.png")))
+items.append(Item(160, 90, 60, 60, 'Артефакт1', os.path.join("pics", "artifact_ring1.png")))
+items.append(Item(140, 90, 60, 60, 'Зелье_хп', os.path.join("pics", "potion_hp.png")))
+items.append(Item(140, 30, 60, 60, 'Шлем', os.path.join("pics", "helmet.png")))
+items.append(Item(140, 40, 60, 60, 'Артефакт2', os.path.join("pics", "artifact_ring2.png")))
+items.append(Item(140, 10, 60, 60, 'Щит', os.path.join("pics", "shield.png")))
+items.append(Item(140, 50, 60, 60, 'Щит', os.path.join("pics", "shield2.png")))
+items.append(Item(140, 140, 60, 60, 'Броня', os.path.join("pics", "armor2.png")))
+items.append(Item(50, 110, 60, 60, 'Меч', os.path.join("pics", "sword2.png")))
+items.append(Item(30, 30, 60, 60, 'Шлем', os.path.join("pics", "helmet2.png")))
+items.append(Item(46, 35, 60, 60, 'Зелье_мана', os.path.join("pics", "potion_mana.png")))
 
 for item in items:
     objects[item.x][item.y] = item
@@ -217,6 +233,13 @@ while True:
             inventory_sprites.update(event)
             screen.blit(blackout, (0, 0))
             inventory_sprites.draw(screen)
+            if event.type == pygame.MOUSEMOTION:
+                for i in hero.inventory:
+                    for j in items_positions:
+                        if i.unique_indx == j.unique_indx:
+                            if j.is_mouse_track and not j.is_holding:
+                                description_text_blit(event.pos[0] + 20, event.pos[1] + 20, descriptions[j.name], j.name)
+                                break
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -232,11 +255,11 @@ while True:
                         for i in hero.inventory:
                             if not i.inventory_position:
                                 inventory_item = InventoryItem(n, i.image, i.image_path, i.inventory_position,
-                                                               i.unique_indx, inventory_sprites)
+                                                               i.unique_indx, i.name, hero, inventory_sprites)
                                 n += 1
                             else:
                                 inventory_item = InventoryItem(None, i.image, i.image_path, i.inventory_position,
-                                                               i.unique_indx, inventory_sprites)
+                                                               i.unique_indx, i.name, hero, inventory_sprites)
                 is_inventory = True
             elif event.key == pygame.K_ESCAPE:
                 is_inventory = False
