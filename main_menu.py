@@ -6,6 +6,7 @@ import sqlite3
 import start_screen
 from character_editor import PlusButton
 from character_editor import MinusButton
+from savings import Save, LoadButton
 
 start_screen.start_screen()
 
@@ -15,6 +16,7 @@ pygame.init()
 with open('what_definition.txt', mode='r', encoding='utf-8') as file:
     width = int(file.read())
     height = (width // 16) * 9
+    k = 1 if width == 1920 else 1.4055636896
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 fps = 100
@@ -22,6 +24,7 @@ running = True
 is_character_editor = False
 is_options = False
 is_music = False
+is_savings = False
 button_sound = pygame.mixer.Sound('sound_effects/button_click_3.mp3')
 button_track_sound = pygame.mixer.Sound('sound_effects/button_tracking_04.mp3')
 main_menu_music = pygame.mixer.Sound('music/main_menu_music.mp3')
@@ -131,6 +134,7 @@ class ContinueGameButton(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
+            init_savings()
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(hover_alpha)
@@ -522,6 +526,29 @@ def init_editor():
     connect.close()
 
 
+def init_savings():
+    global is_savings
+    menu_back.kill()
+    new_game_button.kill()
+    continue_game_button.kill()
+    exit_button.kill()
+    options_button.kill()
+    connect = sqlite3.connect('game.db')
+    cur = connect.cursor()
+    savings = cur.execute('''
+        SELECT date, id FROM savings
+        ORDER BY date DESC
+    ''').fetchall()
+    print(savings)
+    y = 20
+    for i in savings:
+        save = Save(y, i[0], width, height, all_sprites)
+        load_button = LoadButton(y, i[1], width, height, all_sprites)
+        y += 65
+
+    is_savings = True
+
+
 defin_button1, defin_button2, back_button, editor_back, plus_button1, minus_button1 = None, None, None, None, None, None
 plus_button2, minus_button2, plus_button3, minus_button3 = None, None, None, None
 plus_button4, minus_button4, black_background, img_resolution, on_music_button = None, None, None, None, None
@@ -569,6 +596,10 @@ while running:
                 img_music = font.render('Музыка:', True, (146, 107, 56))
             screen.blit(img_resolution, (width // 2.86995515695, height // 3.6))
             screen.blit(img_music, (width // 2.86995515695, height // 2.66666666667))
+        if is_savings:
+            for i in all_sprites:
+                if i.rect.x == 710 // k:
+                    screen.blit(i.date_text, (1000 // k, (i.y + 10) // k))
         pygame.display.update()
         pygame.display.flip()
     clock.tick(fps)
