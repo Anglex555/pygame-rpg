@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 
+
 class Item:
     def __init__(self, x, y, width, height, name, image_path):
         self.x = x
