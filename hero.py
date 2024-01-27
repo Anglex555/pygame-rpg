@@ -1,10 +1,11 @@
 import pygame
 import sys
 import os
+import sqlite3
 
 
 class Hero:
-    def __init__(self, x, y, width, height, speed):
+    def __init__(self, x, y, width, height, speed, save):
         self.x = x
         self.y = y
         self.width = width
@@ -22,8 +23,14 @@ class Hero:
         self.lvl = 1
         self.exp = 900
         self.exp_levelup = 1000
+        self.strength = 0
+        self.endurance = 0
+        self.iq = 0
+        self.body_type = 0
+        self.name = ""
         self.inventory = []
         self.attack_type = 0
+        self.load_characteristics(save, 'game.db')
 
         self.direction = "down"
         self.idle_frame = 0
@@ -39,6 +46,17 @@ class Hero:
         self.is_attack = False
         self.load_images()
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+
+    def load_characteristics(self, save, db):
+        connection = sqlite3.connect(db)
+        cursor = connection.cursor()
+        query = f"SELECT strength, endurance, iq, body_type, name FROM characteristics WHERE id = {save}"
+        cursor.execute(query)
+        result = cursor.fetchone()
+        if result:
+            self.strength, self.endurance, self.iq, self.body_type, self.name = result
+        connection.close()
 
 
     def move(self, keys, MAP_HEIGHT, MAP_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE, camera_window_y, camera_window_x, collision_objects):
@@ -149,7 +167,6 @@ class Hero:
 
 
     def animate(self, keys, in_water):
-        print(self.attack_frame)
         if self.attack_frame == -1:
             self.is_attack = False
             self.attack_frame = 0
@@ -195,15 +212,21 @@ class Hero:
             if self.rect.colliderect(enemy.rect):
                 if not self.is_attack and self.attack_cooldown == 0:
                     if self.attack_type == 1:
-                        enemy.get_damage(30)
                         self.mana -= 10
                     elif self.attack_type == 2:
-                        enemy.get_damage(40)
                         self.mana -= 30
                     elif self.attack_type == 3:
-                        enemy.get_damage(30)
                         self.mana -= 20
-                    self.attack_cooldown = 30
+                    for enemy in monsters:
+                        if self.rect.colliderect(enemy.rect):
+                            if self.attack_type == 1:
+                                enemy.get_damage(30)
+                            elif self.attack_type == 2:
+                                enemy.get_damage(40)
+                            elif self.attack_type == 3:
+                                enemy.get_damage(30)
+                    self.attack_cooldown = 10
+                    break
         self.is_attack = True
 
 
@@ -214,7 +237,6 @@ class Hero:
 
     def pick_up_item(self, item):
         self.inventory.append(item)
-        print(self.inventory)
 
 
     def drop_item(self):

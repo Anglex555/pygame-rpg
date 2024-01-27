@@ -3,6 +3,7 @@ import sys
 import os
 import sqlite3
 import subprocess
+from game import Game
 
 pygame.init()
 with open('what_definition.txt', mode='r', encoding='utf-8') as file:
@@ -45,6 +46,7 @@ class LoadButton(pygame.sprite.Sprite):
         super().__init__(*group)
         k = 1 if width == 1920 else 1.4055636896
         self.y = y
+        self.id = id
         self.image = pygame.transform.scale(LoadButton.save_image, (160 // k, 39 // k))
         self.rect = self.image.get_rect()
         self.rect.x = 715 // k
@@ -61,6 +63,14 @@ class LoadButton(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(pressed_alpha)
             button_sound.play()
+            connect = sqlite3.connect('game.db')
+            cur = connect.cursor()
+            cur.execute('SELECT character_id FROM savings WHERE id = ?', (self.id,))
+            character_id = cur.fetchone()[0]
+            cur.close()
+            connect.close()
+            game = Game(character_id)
+            game.run()
         if args and args[0].type == pygame.MOUSEBUTTONUP and \
                 self.rect.collidepoint(args[0].pos):
             self.image.set_alpha(hover_alpha)

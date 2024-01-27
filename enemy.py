@@ -248,11 +248,9 @@ class Slime(Enemy):
         
         if self.is_dead:
             death_animation = self.animate_death()
-            print(death_animation)
             return death_animation
         if self.is_damage:
             damaged_image = self.animate_damage()
-            print(damaged_image)
             return damaged_image
         if self.is_attack:
             elapsed_time = time.time() - self.attack_animation_time

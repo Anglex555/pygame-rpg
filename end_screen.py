@@ -15,7 +15,7 @@ def terminate():
     sys.exit()
 
 
-def end_screen():
+def end_screen(monsters_count):
     pygame.init()
 
     if width == 1920:
@@ -32,6 +32,8 @@ def end_screen():
 
     def blit_text(y):
         titles = [
+            f'За эту игру вы победили {monsters_count} монстра!',
+            '',
             'Создатели:',
             'Александр Англичанинов',
             'Никита Анхимов',

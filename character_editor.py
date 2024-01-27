@@ -3,6 +3,7 @@ import sys
 import os
 import sqlite3
 import subprocess
+from game import Game
 
 
 pygame.init()
@@ -25,10 +26,10 @@ tokens = 20
 token = 5
 font1 = pygame.font.SysFont('candara', 50)
 font2 = pygame.font.SysFont('candara', 30, True)
-img1 = font1.render('5', True, font_color)
-img2 = font1.render('5', True, font_color)
-img3 = font1.render('5', True, font_color)
-img4 = font1.render('5', True, font_color)
+img1 = font1.render('10', True, font_color)
+img2 = font1.render('10', True, font_color)
+img3 = font1.render('10', True, font_color)
+img4 = font1.render('10', True, font_color)
 
 line_text = font1.render('________________________', True, 'black')
 name = ''
@@ -58,7 +59,7 @@ upper_letters_event = {
 def hint_text_blit(width, height):
     hint_text = [
         'У вас есть 4 токена, 1 токен равня',
-        'ется 5. Распределите все токены',
+        'ется 5 очкам. Распределите все токены',
         'по характеристикам. Также дайте',
         'своему персонажу имя, Не превы',
         'шающее n символов.'
@@ -262,8 +263,14 @@ class ContinueButton(pygame.sprite.Sprite):
                     self.rect.collidepoint(args[0].pos):
                 self.image.set_alpha(pressed_alpha)
                 button_sound.play()
-                subprocess.run(['python', os.path.join(os.path.dirname(__file__), 'main.py')])
-                subprocess.run(['python', os.path.join(os.path.dirname(__file__), 'end_screen.py')])
+                connect = sqlite3.connect('game.db')
+                cur = connect.cursor()
+                cur.execute('SELECT MAX(id) FROM characteristics') 
+                last_id = cur.fetchone()[0]
+                cur.close()
+                connect.close()
+                game = Game(last_id)
+                game.run()
             if args and args[0].type == pygame.MOUSEBUTTONUP and \
                     self.rect.collidepoint(args[0].pos):
                 self.image.set_alpha(hover_alpha)

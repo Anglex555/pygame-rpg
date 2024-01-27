@@ -549,11 +549,6 @@ def init_savings():
     is_savings = True
 
 
-defin_button1, defin_button2, back_button, editor_back, plus_button1, minus_button1 = None, None, None, None, None, None
-plus_button2, minus_button2, plus_button3, minus_button3 = None, None, None, None
-plus_button4, minus_button4, black_background, img_resolution, on_music_button = None, None, None, None, None
-off_music_button, img_music, character_name_editor_back, enter_button, save_button = None, None, None, None, None
-
 all_sprites = pygame.sprite.Group()
 background = Background(all_sprites)
 menu_back = Menu(all_sprites)
@@ -563,45 +558,73 @@ exit_button = ExitButton(all_sprites)
 options_button = OptionsButton(all_sprites)
 all_sprites.draw(screen)
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        all_sprites.update(event)
-        all_sprites.draw(screen)
-        if is_character_editor:
-            screen.blit(character_editor.img1, (width // 2.34718826406, height // 1.67962674961))
-            screen.blit(character_editor.img2, (width // 1.96721311475, height // 1.51472650771))
-            screen.blit(character_editor.img3, (width // 2.09378407852, height // 1.37931034483))
-            screen.blit(character_editor.img4, (width // 1.9452887538, height // 1.26909518214))
-            character_editor.hint_text_blit(width, height)
-            screen.blit(character_editor.line_text, (width // 11.2280701754, height // 3.85714285714))
-            if character_editor.is_enter:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_BACKSPACE:
-                        character_editor.name = character_editor.name[:-1]
-                    else:
-                        character_editor.name += event.unicode if len(character_editor.name) <= 30 else 'f'
-                    character_editor.name_text = character_editor.font2.render(character_editor.name,
-                                                                               True, character_editor.font_color)
-            screen.blit(character_editor.name_text, (width // 11.2280701754, height // 3.49514563107))
-        if is_options:
-            with open('what_definition.txt', mode='r', encoding='utf-8') as file:
-                if file.read() == '1920':
-                    k = 1
-                else:
-                    k = 1.4055636896
-                font = pygame.font.SysFont('candara', int(35 // k))
-                img_resolution = font.render('Разрешение:', True, (146, 107, 56))
-                img_music = font.render('Музыка:', True, (146, 107, 56))
-            screen.blit(img_resolution, (width // 2.86995515695, height // 3.6))
-            screen.blit(img_music, (width // 2.86995515695, height // 2.66666666667))
-        if is_savings:
-            for i in all_sprites:
-                if i.rect.x == 710 // k:
-                    screen.blit(i.date_text, (1000 // k, (i.y + 10) // k))
-        pygame.display.update()
-        pygame.display.flip()
-    clock.tick(fps)
+class MainMenu:
+    def __init__(self):
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
+        pygame.init()
 
-pygame.quit()
+        self.running = True
+
+    def load_image(self, name, colorkey=None):
+        fullname = name
+        if not os.path.isfile(fullname):
+            print(f"Файл с изображением '{fullname}' не найден")
+            sys.exit()
+        image = pygame.image.load(fullname)
+        if colorkey is not None:
+            image = image.convert()
+            if colorkey == -1:
+                colorkey = image.get_at((0, 0))
+            image.set_colorkey(colorkey)
+        else:
+            image = image.convert_alpha()
+        return image
+
+    def run(self):
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                all_sprites.update(event)
+                all_sprites.draw(screen)
+                if is_character_editor:
+                    screen.blit(character_editor.img1, (width // 2.34718826406, height // 1.67962674961))
+                    screen.blit(character_editor.img2, (width // 1.96721311475, height // 1.51472650771))
+                    screen.blit(character_editor.img3, (width // 2.09378407852, height // 1.37931034483))
+                    screen.blit(character_editor.img4, (width // 1.9452887538, height // 1.26909518214))
+                    character_editor.hint_text_blit(width, height)
+                    screen.blit(character_editor.line_text, (width // 11.2280701754, height // 3.85714285714))
+                    if character_editor.is_enter:
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_BACKSPACE:
+                                character_editor.name = character_editor.name[:-1]
+                            else:
+                                character_editor.name += event.unicode if len(character_editor.name) <= 30 else 'f'
+                            character_editor.name_text = character_editor.font2.render(character_editor.name,
+                                                                                       True, character_editor.font_color)
+                    screen.blit(character_editor.name_text, (width // 11.2280701754, height // 3.49514563107))
+                if is_options:
+                    with open('what_definition.txt', mode='r', encoding='utf-8') as file:
+                        if file.read() == '1920':
+                            k = 1
+                        else:
+                            k = 1.4055636896
+                        font = pygame.font.SysFont('candara', int(35 // k))
+                        img_resolution = font.render('Разрешение:', True, (146, 107, 56))
+                        img_music = font.render('Музыка:', True, (146, 107, 56))
+                    screen.blit(img_resolution, (width // 2.86995515695, height // 3.6))
+                    screen.blit(img_music, (width // 2.86995515695, height // 2.66666666667))
+                if is_savings:
+                    with open('what_definition.txt', mode='r', encoding='utf-8') as file:
+                        if file.read() == '1920':
+                            k = 1
+                        else:
+                            k = 1.4055636896
+                    for i in all_sprites:
+                        if i.rect.x == 710 // k:
+                            screen.blit(i.date_text, (1000 // k, (i.y + 10) // k))
+                pygame.display.update()
+                pygame.display.flip()
+            clock.tick(fps)
+
+        pygame.quit()

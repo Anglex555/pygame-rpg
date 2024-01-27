@@ -64,7 +64,7 @@ items_positions = {}
 
 
 class Inventory(pygame.sprite.Sprite):
-    image_inventory = pygame.image.load('pics/whole_inventory4.png')
+    image_inventory = pygame.image.load('pics/whole_inventory6.png')
 
     def __init__(self, *group):
         super().__init__(*group)
