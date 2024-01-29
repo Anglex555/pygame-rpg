@@ -2,6 +2,8 @@ import pygame
 import sys
 import os
 
+
+
 pygame.init()
 with open('what_definition.txt', mode='r', encoding='utf-8') as file:
     width = int(file.read())
@@ -10,6 +12,8 @@ screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 fps = 100
 running = True
+swallow_sound = pygame.mixer.Sound('sound_effects/swallow1.mp3')
+clothes_on_sound = pygame.mixer.Sound('sound_effects/clothes_on2.mp3')
 
 k = 1 if width == 1920 else 1.4055636896
 
@@ -124,9 +128,11 @@ class InventoryItem(pygame.sprite.Sprite):
             if self.name == 'Зелье_хп':
                 self.hero.hp = self.hero.hp + 25 if self.hero.hp + 25 <= 100 else 100
                 is_used = True
+                swallow_sound.play()
             elif self.name == 'Зелье_мана':
                 self.hero.mana = self.hero.mana + 25 if self.hero.mana + 25 <= 100 else 100
                 is_used = True
+                swallow_sound.play()
             elif self.name == 'Джем':
                 self.hero.hp = self.hero.hp + 10 if self.hero.hp + 10 <= 100 else 100
                 is_used = True
@@ -180,6 +186,7 @@ class InventoryItem(pygame.sprite.Sprite):
                                                 j.indx = cells.index(i)
                                                 break
                                 if is_in_cell:
+                                    clothes_on_sound.play()
                                     break
                     if is_in_cell:
                         break
@@ -213,6 +220,7 @@ class InventoryItem(pygame.sprite.Sprite):
                         self.rect.x, self.rect.y = artifact_cell1[0], artifact_cell1[1]
                         items_positions[self] = artifact_cell1
                         is_in_cell = True
+                    clothes_on_sound.play()
                 elif (abs(artifact_cell2[0] - self.rect.x) <= 80 and abs(artifact_cell2[1] - self.rect.y) <= 80
                         and 'artifact' in self.image_path):
                     if artifact_cell2 in items_positions.values():
@@ -235,6 +243,7 @@ class InventoryItem(pygame.sprite.Sprite):
                         self.rect.x, self.rect.y = artifact_cell2[0], artifact_cell2[1]
                         items_positions[self] = artifact_cell2
                         is_in_cell = True
+                    clothes_on_sound.play()
                 elif (abs(helmet_cell[0] - self.rect.x) <= 80 and abs(helmet_cell[1] - self.rect.y) <= 80
                         and 'helmet' in self.image_path):
                     if helmet_cell in items_positions.values():
@@ -257,6 +266,7 @@ class InventoryItem(pygame.sprite.Sprite):
                         self.rect.x, self.rect.y = helmet_cell[0], helmet_cell[1]
                         items_positions[self] = helmet_cell
                         is_in_cell = True
+                    clothes_on_sound.play()
                 elif (abs(armor_cell[0] - self.rect.x) <= 80 and abs(armor_cell[1] - self.rect.y) <= 110
                         and 'armor' in self.image_path):
                     if armor_cell in items_positions.values():
@@ -285,6 +295,7 @@ class InventoryItem(pygame.sprite.Sprite):
                         self.rect.x, self.rect.y = armor_cell[0], armor_cell[1]
                         items_positions[self] = armor_cell
                         is_in_cell = True
+                    clothes_on_sound.play()
                 elif (abs(sword_cell[0] - self.rect.x) <= 80 and abs(sword_cell[1] - self.rect.y) <= 110
                         and 'sword' in self.image_path):
                     if sword_cell in items_positions.values():
@@ -313,6 +324,7 @@ class InventoryItem(pygame.sprite.Sprite):
                         self.rect.x, self.rect.y = sword_cell[0], sword_cell[1]
                         items_positions[self] = sword_cell
                         is_in_cell = True
+                    clothes_on_sound.play()
                 elif (abs(shield_cell[0] - self.rect.x) <= 80 and abs(shield_cell[1] - self.rect.y) <= 110
                         and 'shield' in self.image_path):
                     if shield_cell in items_positions.values():
@@ -341,6 +353,7 @@ class InventoryItem(pygame.sprite.Sprite):
                         self.rect.x, self.rect.y = shield_cell[0], shield_cell[1]
                         items_positions[self] = shield_cell
                         is_in_cell = True
+                    clothes_on_sound.play()
             if not is_in_cell:
                 self.rect.x, self.rect.y = items_positions[self][0], items_positions[self][1]
             self.image.set_alpha(200)
