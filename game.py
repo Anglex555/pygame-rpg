@@ -27,6 +27,11 @@ from inventory import Inventory, InventoryItem, cells, items_positions, descript
 from end_screen import end_screen
 from city import run_game
 
+blade_swing_sound = pygame.mixer.Sound('sound_effects/blade_swing.mp3')
+blade_swing_sound.set_volume(0.25)
+steps_sound = pygame.mixer.Sound('sound_effects/steps_2.mp3')
+steps_sound.set_volume(0.4)
+
 with open('what_definition.txt', mode='r', encoding='utf-8') as file:
     SCREEN_WIDTH = int(file.read())
     SCREEN_HEIGHT = (SCREEN_WIDTH // 16) * 9
@@ -41,6 +46,7 @@ SOIL_COLOR = (144, 238, 144)
 FOREST_FLOOR_COLOR = (0, 128, 0)
 
 FPS = 50
+
 
 class Game:
     def __init__(self, save):
@@ -298,6 +304,8 @@ class Game:
                     keys = pygame.key.get_pressed()
 
                     self.hero.attack(self.monsters, keys)
+                    if not self.is_inventory:
+                        blade_swing_sound.play()
 
             if not self.is_inventory:
                 tile_under_player = self.tile_map[(self.hero.y + self.hero.camera_y - 100) // TILE_SIZE - 10][(self.hero.x + self.hero.camera_x - 100) // TILE_SIZE - 10]

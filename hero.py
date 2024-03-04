@@ -2,6 +2,13 @@ import pygame
 import sys
 import os
 import sqlite3
+import time
+
+times = [0, 0]
+
+pygame.init()
+steps_sound = pygame.mixer.Sound('sound_effects/steps_2.mp3')
+steps_sound.set_volume(0.4)
 
 
 class Hero:
@@ -67,32 +74,53 @@ class Hero:
             new_camera_x = self.camera_x
             new_camera_y = self.camera_y
 
+            is_step = False
+
             if keys[pygame.K_w] and new_y - 1 >= 100 and self.camera_y <= (SCREEN_HEIGHT // 2) - camera_window_y - self.height:
                 new_y -= self.speed
                 self.direction = "up"
+                is_step = True
             if keys[pygame.K_s] and new_y + self.height + 1 <= MAP_HEIGHT * TILE_SIZE - 1150 and self.camera_y >= (SCREEN_HEIGHT // 2) + camera_window_y:
                 new_y += self.speed
                 self.direction = "down"
+                is_step = True
             if keys[pygame.K_a] and new_x - 1 >= 200 and self.camera_x <= (SCREEN_WIDTH // 2) - camera_window_x - self.width:
                 new_x -= self.speed
                 self.direction = "left"
+                is_step = True
             if keys[pygame.K_d] and new_x + self.width + 1 <= MAP_WIDTH * TILE_SIZE - 1150 and self.camera_x >= (SCREEN_WIDTH // 2) + camera_window_x:
                 new_x += self.speed
                 self.direction = "right"
-            
+                is_step = True
+
             if keys[pygame.K_w] and new_y - 1 >= 0 and self.camera_y > (SCREEN_HEIGHT // 2) - camera_window_y - self.height:
                 new_camera_y -= self.speed
                 self.direction = "up"
+                is_step = True
             if keys[pygame.K_s] and new_y + self.height + 1 <= MAP_HEIGHT * TILE_SIZE - 1150 and self.camera_y < (SCREEN_HEIGHT // 2) + camera_window_y:
                 new_camera_y += self.speed
                 self.direction = "down"
+                is_step = True
             if keys[pygame.K_a] and new_x - 1 >= 0 and self.camera_x > (SCREEN_WIDTH // 2) - camera_window_x - self.width:
                 new_camera_x -= self.speed
                 self.direction = "left"
+                is_step = True
             if keys[pygame.K_d] and new_x + self.width + 1 <= MAP_WIDTH * TILE_SIZE - 1150 and self.camera_x < (SCREEN_WIDTH // 2) + camera_window_x:
                 new_camera_x += self.speed
                 self.direction = "right"
-            
+                is_step = True
+
+            if is_step:
+                times[1] = time.time()
+                if times[0] == 0:
+                    steps_sound.play()
+                    times[0] = time.time()
+                else:
+                    print(times[1] - times[0], steps_sound.get_length())
+                    if times[1] - times[0] >= steps_sound.get_length() / 2:
+                        steps_sound.play()
+                        times[0] = time.time()
+
             temp_rect = pygame.Rect(new_camera_x, new_camera_y, self.width, self.height)
         
             if not self.check_collision(collision_objects, temp_rect):
@@ -103,8 +131,9 @@ class Hero:
 
             self.rect.x = self.camera_x
             self.rect.y = self.camera_y
+            self.update_cooldown()
+
         self.update_cooldown()
-            
 
     def check_collision(self, objects, temp_rect):
         for object in objects:

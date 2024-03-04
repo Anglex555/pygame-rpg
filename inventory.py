@@ -14,6 +14,8 @@ fps = 100
 running = True
 swallow_sound = pygame.mixer.Sound('sound_effects/swallow1.mp3')
 clothes_on_sound = pygame.mixer.Sound('sound_effects/clothes_on2.mp3')
+clothes_on_sound.set_volume(0.5)
+bite_sound = pygame.mixer.Sound('sound_effects/bite1.mp3')
 
 k = 1 if width == 1920 else 1.4055636896
 
@@ -136,6 +138,7 @@ class InventoryItem(pygame.sprite.Sprite):
             elif self.name == 'Джем':
                 self.hero.hp = self.hero.hp + 10 if self.hero.hp + 10 <= 100 else 100
                 is_used = True
+                bite_sound.play()
             if is_used:
                 self.kill()
                 for item in self.hero.inventory.copy():
