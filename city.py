@@ -922,7 +922,7 @@ def run_game():
     sprite_stoune.rect = sprite_magaz.image.get_rect()
     all_sprites.add(sprite_stoune)
     sprite_stoune.rect.x = x_p + k * 50 * s[0] + qx
-    sprite_stoune.rect.y = y_p + k * 50 * s[1] + qy
+    sprite_stoune.rect.y = y_p + k * 51 * s[1] + qy
 
     running = True
     dog_surf = pygame.image.load('but_plus.png')
