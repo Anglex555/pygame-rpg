@@ -31,6 +31,8 @@ blade_swing_sound = pygame.mixer.Sound('sound_effects/blade_swing.mp3')
 blade_swing_sound.set_volume(0.25)
 steps_sound = pygame.mixer.Sound('sound_effects/steps_2.mp3')
 steps_sound.set_volume(0.4)
+bag_zip_sound = pygame.mixer.Sound('sound_effects/bag_zip.mp3')
+bag_zip_sound.set_volume(0.3)
 
 with open('what_definition.txt', mode='r', encoding='utf-8') as file:
     SCREEN_WIDTH = int(file.read())
@@ -182,7 +184,7 @@ class Game:
             House2: 4
         }
 
-        is_water = False
+        self.is_water = False
         self.hero.x = new_start_x
         self.hero.y = new_start_y
 
@@ -272,20 +274,21 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_g:
                         run_game()
-                    elif event.key == pygame.K_i:
-                        if not self.is_inventory:
-                            if self.hero.inventory:
-                                n = 0
-                                for i in self.hero.inventory:
-                                    if not i.inventory_position:
-                                        inventory_item = InventoryItem(n, i.image, i.image_path, i.inventory_position,
-                                                                    i.unique_indx, i.name, self.hero, self.inventory_sprites)
-                                        n += 1
-                                    else:
-                                        inventory_item = InventoryItem(None, i.image, i.image_path, i.inventory_position,
-                                                                    i.unique_indx, i.name, self.hero, self.inventory_sprites)
+                    elif event.key == pygame.K_i and not self.is_inventory:
+                        bag_zip_sound.play()
+                        if self.hero.inventory:
+                            n = 0
+                            for i in self.hero.inventory:
+                                if not i.inventory_position:
+                                    inventory_item = InventoryItem(n, i.image, i.image_path, i.inventory_position,
+                                                                i.unique_indx, i.name, self.hero, self.inventory_sprites)
+                                    n += 1
+                                else:
+                                    inventory_item = InventoryItem(None, i.image, i.image_path, i.inventory_position,
+                                                                i.unique_indx, i.name, self.hero, self.inventory_sprites)
                         self.is_inventory = True
-                    elif event.key == pygame.K_ESCAPE:
+                    elif event.key == pygame.K_ESCAPE or (event.key == pygame.K_i and self.is_inventory):
+                        bag_zip_sound.play()
                         self.is_inventory = False
                         for i in self.inventory_sprites:
                             if i != self.inventory_back:
@@ -312,7 +315,7 @@ class Game:
                 in_water = tile_under_player in [0, 2] 
 
                 keys = pygame.key.get_pressed()
-                self.hero.move(keys, self.MAP_HEIGHT, self.MAP_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE, self.camera_window_y, self.camera_window_x, self.collision_objects)
+                self.hero.move(keys, self.MAP_HEIGHT, self.MAP_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE, self.camera_window_y, self.camera_window_x, self.collision_objects, self.is_water)
 
                 interpolation_factor = 0.1
                 self.hero_x_interp = self.hero.x + interpolation_factor * (self.hero.x - self.hero.prev_x)
@@ -325,7 +328,7 @@ class Game:
                 end_col = min(self.MAP_WIDTH, int((SCREEN_WIDTH - offset_x) / TILE_SIZE) + 1)
                 start_row = max(0, int(-offset_y / TILE_SIZE))
                 end_row = min(self.MAP_HEIGHT, int((SCREEN_HEIGHT - offset_y) / TILE_SIZE) + 1)
-                is_water = False
+                self.is_water = False
                 
                 for depth in range(20):
                     for row in range(start_row, end_row):
@@ -350,7 +353,7 @@ class Game:
                                             self.tile_map[row][col + 1]   # Тайл справа
                                         ]
                                         if all(neighbor_tile < 3 for neighbor_tile in neighboring_tiles):
-                                            is_water = True
+                                            self.is_water = True
                 
                 for row in range(start_col - 15, end_col + 15):
                     for col in range(start_row - 15, end_row + 15):
@@ -382,7 +385,7 @@ class Game:
                 self.hero.prev_y = self.hero.y
                 
                 keys = pygame.key.get_pressed()
-                hero_image = self.hero.animate(keys, is_water)
+                hero_image = self.hero.animate(keys, self.is_water)
                 if self.hero.is_attack:
                     self.scaled_hero_image = pygame.transform.scale(hero_image, (112, 144))
                     if self.hero.direction == "left" or self.hero.direction == "up":

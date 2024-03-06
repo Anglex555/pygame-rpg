@@ -9,6 +9,8 @@ times = [0, 0]
 pygame.init()
 steps_sound = pygame.mixer.Sound('sound_effects/steps_2.mp3')
 steps_sound.set_volume(0.4)
+swimming_sound = pygame.mixer.Sound('sound_effects/swimming_sound2.mp3')
+swimming_sound.set_volume(0.2)
 
 
 class Hero:
@@ -66,7 +68,7 @@ class Hero:
         connection.close()
 
 
-    def move(self, keys, MAP_HEIGHT, MAP_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE, camera_window_y, camera_window_x, collision_objects):
+    def move(self, keys, MAP_HEIGHT, MAP_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE, camera_window_y, camera_window_x, collision_objects, is_water):
         if not self.is_attack:
             new_x = self.x
             new_y = self.y
@@ -111,15 +113,26 @@ class Hero:
                 is_step = True
 
             if is_step:
-                times[1] = time.time()
-                if times[0] == 0:
-                    steps_sound.play()
-                    times[0] = time.time()
-                else:
-                    print(times[1] - times[0], steps_sound.get_length())
-                    if times[1] - times[0] >= steps_sound.get_length() / 2:
+                if not is_water:
+                    times[1] = time.time()
+                    if times[0] == 0:
                         steps_sound.play()
                         times[0] = time.time()
+                    else:
+                        print(times[1] - times[0], steps_sound.get_length())
+                        if times[1] - times[0] >= steps_sound.get_length() / 2:
+                            steps_sound.play()
+                            times[0] = time.time()
+                else:
+                    times[1] = time.time()
+                    if times[0] == 0:
+                        swimming_sound.play()
+                        times[0] = time.time()
+                    else:
+                        print(times[1] - times[0], swimming_sound.get_length())
+                        if times[1] - times[0] >= swimming_sound.get_length() / 1.5:
+                            swimming_sound.play()
+                            times[0] = time.time()
 
             temp_rect = pygame.Rect(new_camera_x, new_camera_y, self.width, self.height)
         
